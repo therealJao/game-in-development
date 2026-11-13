@@ -1,5 +1,6 @@
 // Módulo do jogo. Consulte GUIA-DE-EDICAO.md antes de alterar estruturas.
 import * as T from "./vendor/three.module.js";
+import { criarBizRealista } from "./biz.js";
 import {
   criarCaixa,
   criarCilindro,
@@ -56,7 +57,11 @@ export function criarBolo() {
   g.name = "Bolo_brigadeiro_marmita_aluminio";
   return g;
 }
+/** A Biz agora usa o modelo remodelado em biz.js; a versão anterior fica abaixo como referência. */
 export function criarBiz() {
+  return criarBizRealista();
+}
+export function criarBizAntiga() {
   const g = new T.Group(),
     black = obterMaterial("#101316", 0.23, 0.28),
     tire = obterMaterial("#151616", 0.94),
