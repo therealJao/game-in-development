@@ -104,3 +104,7 @@ Família Simpsons em OBJ e Bart em FBX animado: arquivos fornecidos pelo usuári
 ## Atualização 2.25
 Braços: modelo cartoon-fps-arms fornecido pelo usuário, com pose e material adaptados. Retrato do Axel renderizado do modelo do jogo. Rádio do menu: gravações dos quatro links fornecidos, listadas em ATUALIZACAO-2.25.md e dist/assets/radio/faixas.json. Ícone próprio do Escape Code, construído em geometria 2D.
 
+
+## Natal 2026 — rostos realistas
+
+Rosto humano escaneado: "Lee Perry-Smith head" por Infinite-Realities, licença Creative Commons Atribuição 3.0 (https://creativecommons.org/licenses/by/3.0/), obtido dos exemplos do three.js (dist/assets/cabeca/). Adaptações: olhos abertos por recorte no shader, globos oculares, corte do busto, ajuste de tom de pele, cabelo e acessórios gerados no jogo.

@@ -1,6 +1,7 @@
 import * as T from "./vendor/three.module.js";
 import { mergeGeometries } from "./vendor/BufferGeometryUtils.js";
 import { materialPele } from "./pele.js";
+import { criarRostoEscaneado } from "./cabeca-escaneada.js";
 
 /**
  * Cabeça humana esculpida proceduralmente (sem fotos):
@@ -138,7 +139,7 @@ function texturaIris(cor) {
   return t;
 }
 
-function criarOlho(corIris, raio) {
+export function criarOlho(corIris, raio) {
   const g = new T.Group();
   const esclera = new T.Mesh(
     new T.SphereGeometry(raio, 32, 24),
@@ -147,7 +148,7 @@ function criarOlho(corIris, raio) {
   g.add(esclera);
   // Íris em disco levemente côncavo, logo atrás da córnea.
   const iris = new T.Mesh(
-    new T.CircleGeometry(raio * 0.48, 40),
+    new T.CircleGeometry(raio * 0.42, 40),
     new T.MeshStandardMaterial({ map: texturaIris(corIris), roughness: 0.4 }),
   );
   iris.position.z = raio * 1.004;
@@ -239,11 +240,18 @@ export function criarCabecaRealista({
   largura = 1,
   nariz = 1,
   semente: s0 = 7,
+  escaneado = true,
 } = {}) {
   semente = s0 * 7919 + 13;
   const grupo = new T.Group();
   grupo.name = "Cabeca_realista";
   const escala = new T.Vector3(altura * 0.38 * largura, altura * 0.5, altura * 0.44);
+  if (escaneado) {
+    // Rosto humano real escaneado (pele, poros, rugas, orelhas e sobrancelhas verdadeiras).
+    grupo.add(criarRostoEscaneado({ altura: altura * 0.92, pele, corOlhos: olhos, largura }));
+    if (cabelo) grupo.add(criarCabelo({ ...cabelo, escala: escala.clone().multiply(new T.Vector3(1.0, 0.98, 1.08)) }));
+    return { grupo, piscar: () => {}, escala };
+  }
   const geo = esculpirCranio({ largura, nariz });
   corDosVertices(geo, { pele, barba });
   const base = materialPele(pele);

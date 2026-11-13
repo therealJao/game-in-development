@@ -214,8 +214,9 @@ export function criarMaicon() {
   head.userData.piscar = cabecaReal.piscar;
   // Óculos escuros de armação fina (lentes espelhadas).
   const glasses = new T.MeshPhysicalMaterial({ color: "#05070a", roughness: 0.05, metalness: 0.6, clearcoat: 1 });
-  const ez = cabecaReal.escala.z * 0.98 + 0.012,
-    ey = 0.02 + cabecaReal.escala.y * 0.12;
+  // Lentes logo à frente dos olhos do rosto escaneado (altura 0,33 m → olhos a ~0,1 m do centro).
+  const ez = 0.02 * 0 + 0.33 * 0.355,
+    ey = 0.02 + 0.33 * 0.05;
   for (const side of [-1, 1]) {
     const ex = cabecaReal.escala.x;
     const lente = new T.Mesh(new T.BoxGeometry(ex * 0.5, ex * 0.27, 0.005), glasses);
@@ -379,13 +380,13 @@ function criarPessoa({ teacher = false } = {}) {
     for (const s of [-1, 1]) {
       const anel = new T.Mesh(new T.TorusGeometry(e.x * 0.2, 0.0025, 6, 28), aro);
       anel.scale.set(1.2, 0.85, 1);
-      anel.position.set(s * e.x * 0.36, e.y * 0.12, e.z * 1.0);
+      anel.position.set(s * e.x * 0.36, 0.31 * 0.05, 0.31 * 0.35);
       head.add(anel);
       const lente = new T.Mesh(new T.CircleGeometry(e.x * 0.2, 28), vidro);
       lente.scale.copy(anel.scale);
       lente.position.copy(anel.position);
       head.add(lente);
-      criarCaixa(head, [0.003, 0.003, e.z * 0.95], aro, [s * e.x * 0.6, e.y * 0.14, e.z * 0.52]);
+      criarCaixa(head, [0.003, 0.003, 0.09], aro, [s * e.x * 0.62, 0.31 * 0.06, 0.31 * 0.35 - 0.045]);
     }
   } else {
     criarTubo(
