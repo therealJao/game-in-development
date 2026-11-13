@@ -348,45 +348,21 @@ function criarPessoa({ teacher = false } = {}) {
   const head = new T.Group();
   head.position.set(0, 1.78, 0);
   g.add(head);
-  criarCilindro(head, 0.06, 0.065, 0.12, skin, [0, -0.13, 0]);
-  criarElipsoide(head, [0.13, 0.17, 0.115], skin, [0, 0, 0]);
-  criarElipsoide(head, [0.134, 0.075, 0.12], hair, [0, 0.125, -0.005]);
-  for (let i = 0; i < 7; i++)
-    criarElipsoide(
-      head,
-      [0.025, 0.06, 0.025],
-      hair,
-      [(i - 3) * 0.034, 0.09, 0.1],
-      [0, 0, i * 0.08],
-    );
-  for (const s of [-1, 1]) {
-    criarElipsoide(head, [0.026, 0.012, 0.009], obterMaterial("#211b19", 0.9), [
-      s * 0.055,
-      0.025,
-      0.109,
-    ]);
-    criarElipsoide(head, [0.02, 0.04, 0.022], skin, [s * 0.13, -0.01, 0]);
-    criarTubo(
-      head,
-      [
-        [s * 0.032, 0.055, 0.112],
-        [s * 0.075, 0.063, 0.105],
-      ],
-      0.006,
-      hair,
-    );
-  }
-  criarElipsoide(head, [0.022, 0.037, 0.033], skin, [0, -0.015, 0.122]);
-  criarTubo(
-    head,
-    [
-      [-0.038, -0.073, 0.103],
-      [0, -0.078, 0.119],
-      [0.038, -0.073, 0.103],
-    ],
-    0.004,
-    obterMaterial("#724d40", 0.9),
-  );
+  // Cabeça esculpida com pele de poros (cabeca-realista.js).
+  const cabecaReal = criarCabecaRealista({
+    pele: teacher ? "#bd8e6b" : "#c99a78",
+    olhos: teacher ? "#4a3a2a" : "#2e1f16",
+    cabelo: teacher
+      ? { cor: "#4b4037", reflexo: "#8a7a6a", estilo: "curto" }
+      : { cor: "#1d1818", reflexo: "#463a36", estilo: "medio" },
+    barba: teacher ? "#5a4c40" : null,
+    altura: 0.31,
+    semente: teacher ? 11 : 21,
+  });
+  cabecaReal.grupo.position.set(0, 0.0, 0.0);
+  head.add(cabecaReal.grupo);
+  head.userData.piscar = cabecaReal.piscar;
+  head.userData.escala = cabecaReal.escala;
   const arms = [criarBraco(g, 1, cloth, skin), criarBraco(g, -1, cloth, skin)],
     legs = [criarPerna(g, -1, pants, shoes), criarPerna(g, 1, pants, shoes)];
   if (teacher) {
@@ -396,12 +372,21 @@ function criarPessoa({ teacher = false } = {}) {
       obterMaterial("#20303d", 0.75),
       [0, 1.35, 0.143],
     );
-    for (const s of [-1, 1])
-      criarCaixa(head, [0.09, 0.05, 0.015], obterMaterial("#252d30", 0.4), [
-        s * 0.053,
-        0.03,
-        0.128,
-      ]);
+    // Óculos de grau: aro fino e lente transparente.
+    const e = cabecaReal.escala,
+      aro = obterMaterial("#252d30", 0.35, 0.6),
+      vidro = new T.MeshPhysicalMaterial({ color: "#dfe8ee", roughness: 0, transparent: true, opacity: 0.18, clearcoat: 1 });
+    for (const s of [-1, 1]) {
+      const anel = new T.Mesh(new T.TorusGeometry(e.x * 0.2, 0.0025, 6, 28), aro);
+      anel.scale.set(1.2, 0.85, 1);
+      anel.position.set(s * e.x * 0.36, e.y * 0.12, e.z * 1.0);
+      head.add(anel);
+      const lente = new T.Mesh(new T.CircleGeometry(e.x * 0.2, 28), vidro);
+      lente.scale.copy(anel.scale);
+      lente.position.copy(anel.position);
+      head.add(lente);
+      criarCaixa(head, [0.003, 0.003, e.z * 0.95], aro, [s * e.x * 0.6, e.y * 0.14, e.z * 0.52]);
+    }
   } else {
     criarTubo(
       g,
@@ -457,8 +442,9 @@ function criarPessoa({ teacher = false } = {}) {
       cloth,
     );
   if (NATAL_ATIVO()) {
-    const touca = criarToucaNatal(0.138);
-    touca.position.set(0, 0.12, -0.01);
+    // Brita usa capuz: a touca vai por cima dele.
+    const touca = criarToucaNatal(cabecaReal.escala.x * (teacher ? 1.12 : 1.45));
+    touca.position.set(0, cabecaReal.escala.y * (teacher ? 0.7 : 1.02), -cabecaReal.escala.z * 0.12);
     touca.rotation.set(-0.18, 0, -0.06);
     head.add(touca);
   }

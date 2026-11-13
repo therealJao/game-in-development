@@ -330,5 +330,7 @@ export function criarCabecaRealista({
     for (const p of palpebras) if (p.userData.cima > 0) p.rotation.x = p.userData.base + fechado * 0.95;
     for (const o of olhosGrupo) o.rotation.set(Math.sin(t * 0.37) * 0.08, Math.sin(t * 0.23) * 0.2, 0);
   };
+  // Piscar sozinho a cada quadro desenhado (funciona mesmo se o personagem não chamar piscar).
+  cranio.onBeforeRender = () => piscar(performance.now() / 1000);
   return { grupo, piscar, escala };
 }
