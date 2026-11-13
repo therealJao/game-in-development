@@ -241,6 +241,7 @@ export function criarArvoreNatal(altura = 4, { luzes = true } = {}) {
       pisca.setColorAt(i, paleta[i % paleta.length]);
     }
     pisca.userData.base = paleta;
+    pisca.onBeforeRender = () => g.userData.animar(performance.now() / 1000);
     g.add(pisca);
   }
   // Estrela de cinco pontas extrudada.
@@ -451,6 +452,7 @@ export function criarVaralDeLuzes(inicio, fim, quantidade = 24, queda = 0.6) {
     luzes.setColorAt(i, paleta[i % 5].clone().multiplyScalar(2));
   }
   g.add(luzes);
+  luzes.onBeforeRender = () => g.userData.animar(performance.now() / 1000);
   const cor = new T.Color();
   g.userData.animar = (t) => {
     for (let i = 0; i < quantidade; i++) {
@@ -553,4 +555,76 @@ export function nevarSuperficies(cena, { minimo = 1.2, max = 220 } = {}) {
 /** Percorre uma cena e anima tudo que tiver userData.animar (árvores, luzes). */
 export function animarNatal(raiz, t) {
   raiz.traverse((o) => o.userData.animar?.(t));
+}
+
+// ---------- Decoração das fases ----------
+/** Quarto do Axel: árvore no canto, presentes, pisca-pisca no teto e guirlanda. */
+export function decorarQuartoNatal(cena) {
+  if (!NATAL_ATIVO()) return null;
+  const g = new T.Group();
+  g.name = "Natal_quarto";
+  const arvore = criarArvoreNatal(2.4);
+  arvore.position.set(4.15, 0, -3.65);
+  arvore.children.filter((o) => o.isPointLight).forEach((l) => (l.intensity = 3));
+  g.add(arvore);
+  const varais = [
+    [[-4.7, 3.2, -4.25], [4.7, 3.2, -4.25]],
+    [[4.75, 3.2, -4.2], [4.75, 3.2, 4.2]],
+    [[-4.7, 3.2, 4.25], [4.7, 3.2, 4.25]],
+    [[-4.75, 3.2, -4.2], [-4.75, 3.2, 4.2]],
+  ];
+  for (const [a, b] of varais) g.add(criarVaralDeLuzes(a, b, 28, 0.35));
+  const bengala = criarBengalaDoce(0.9);
+  bengala.position.set(3.2, 0, -3.9);
+  g.add(bengala);
+  const guirlanda = criarGuirlanda(0.32);
+  guirlanda.position.set(0, 2.5, -4.3);
+  g.add(guirlanda);
+  cena.add(g);
+  return g;
+}
+
+/** Backrooms: varais de luzes nos corredores e mini árvores nos becos sem saída. */
+export function decorarBackroomsNatal(cena, level, celula, alturaParede) {
+  if (!NATAL_ATIVO() || !level?.map) return null;
+  const g = new T.Group();
+  g.name = "Natal_backrooms";
+  const livre = (x, z) => level.map[z]?.[x] === 0;
+  let arvores = 0,
+    varais = 0;
+  for (let z = 1; z < level.height - 1; z++)
+    for (let x = 1; x < level.width - 1; x++) {
+      if (!livre(x, z)) continue;
+      const vizinhos = [[1, 0], [-1, 0], [0, 1], [0, -1]].filter(([dx, dz]) => livre(x + dx, z + dz));
+      const cx = (x + 0.5) * celula,
+        cz = (z + 0.5) * celula;
+      if (vizinhos.length === 1 && arvores < 10 && (x * 7 + z * 3) % 2 === 0) {
+        const a = criarArvoreNatal(1.7, { luzes: true });
+        a.children.filter((o) => o.isPointLight).forEach((l) => (l.intensity = 2.5));
+        // Encostada na parede do fundo do beco, deixando o corredor (e os coletáveis) livres.
+        const [dx, dz] = vizinhos[0];
+        a.position.set(cx - dx * celula * 0.3, 0, cz - dz * celula * 0.3);
+        g.add(a);
+        arvores++;
+      } else if (vizinhos.length === 2 && varais < 34 && (x * 5 + z * 11) % 6 === 0) {
+        // Corredor reto: luzes atravessando de parede a parede.
+        const horizontal = livre(x - 1, z) && livre(x + 1, z);
+        const h = (alturaParede || 3) - 0.35;
+        const v = horizontal
+          ? criarVaralDeLuzes([cx, h, cz - celula / 2 + 0.05], [cx, h, cz + celula / 2 - 0.05], 10, 0.4)
+          : criarVaralDeLuzes([cx - celula / 2 + 0.05, h, cz], [cx + celula / 2 - 0.05, h, cz], 10, 0.4);
+        g.add(v);
+        varais++;
+      }
+    }
+  cena.add(g);
+  return g;
+}
+
+/** Áreas externas: neve caindo e camada de neve no topo das superfícies. */
+export function decorarExteriorNatal(cena, { neve = true, cobrir = true, quantidade = 2600, area = 40 } = {}) {
+  if (!NATAL_ATIVO() || !cena || cena.userData.natalExterior) return;
+  cena.userData.natalExterior = true;
+  if (cobrir) nevarSuperficies(cena);
+  if (neve) cena.add(criarNeve({ quantidade, area, altura: 20 }));
 }

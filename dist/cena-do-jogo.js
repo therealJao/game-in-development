@@ -7,6 +7,7 @@ import { carregarHulkbuster } from "./bluezao-hulkbuster.js";
 import { criarPontoKente } from "./ponto-kente.js";
 import { criarFrutigerAero, desenharFrutigerAero } from "./frutiger-aero.js";
 import { MateriaisRealistas } from "./materiais-realistas.js";
+import { decorarQuartoNatal, decorarBackroomsNatal, decorarExteriorNatal } from "./natal.js";
 import { perfilGrafico, escalaRenderizacao } from "./qualidade-grafica.js";
 import { EfeitosVisuais } from "./efeitos-visuais.js";
 import { criarCastelo, desenharCastelo } from "./castelo.js";
@@ -302,6 +303,8 @@ class CenaDoJogo {
     this.materiaisRealistas.preparar(this.dungeon.scene, false, true);
     this.materiaisRealistas.preparar(this.alisanave.voo, true);
     this.materiaisRealistas.preparar(this.alisanave.porto, false);
+    decorarExteriorNatal(this.alisanave.porto, { area: 46 });
+    decorarExteriorNatal(this.menuScene.cidade.scene, { area: 60 });
     this.materiaisRealistas.preparar(this.alisanave.sala);
     const held = this.controller.clone(true);
     held.position.set(0, 1.0, 0.34);
@@ -342,6 +345,7 @@ class CenaDoJogo {
       this.castelo = await criarCastelo();
       this.materiaisRealistas.preparar(this.castelo.scene);
       this.materiaisRealistas.preparar(this.castelo.externo, true);
+      decorarExteriorNatal(this.castelo.externo, { area: 50 });
       this.materiaisRealistas.preparar(this.castelo.terraco.scene, true);
       this.materiaisRealistas.preparar(this.castelo.terraco.previa.scene, true);
     }
@@ -674,6 +678,7 @@ class CenaDoJogo {
     scene.add(this.cachorro.group);
     this.cachorro.group.position.set(-1, 0, 0.8);
     this.decoracaoQuarto = decorarQuartoAxel(scene);
+    this.natalQuarto = decorarQuartoNatal(scene);
     this.faroesteTV = criarFaroesteDaTV();
     this.tvScene = this.faroesteTV.cena;
     this.tvCamera = this.faroesteTV.camera;
@@ -915,6 +920,7 @@ class CenaDoJogo {
     this.flashlight.shadow.camera.far = 28;
     scene.add(this.flashlight);
     scene.add(this.flashlight.target);
+    decorarBackroomsNatal(scene, level, TAMANHO_CELULA, ALTURA_PAREDE);
     this.levelScene = scene;
     this.materiaisRealistas.preparar(scene);
     this.lastChapter = index;
