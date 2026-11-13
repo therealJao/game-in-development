@@ -467,6 +467,12 @@ function criarCachorro() {
   );
   nickname.name = "Nickname_Shake";
   nickname.position.set(0, 1.18, 0.1);
+  if (NATAL_ATIVO()) {
+    const touca = criarToucaNatal(0.15);
+    touca.position.set(0.03, 0.17, -0.02);
+    touca.rotation.set(-0.35, 0, -0.25);
+    head.add(touca);
+  }
   nickname.scale.set(0.8, 0.225, 1);
   g.add(nickname);
   return {

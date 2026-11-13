@@ -70,7 +70,7 @@ test("opções e rádio validam os valores persistidos; a primeira faixa é Lady
     radioFaixa: 99,
     maos: false,
   });
-  assert.equal(p.tema, "cidade");
+  assert.equal(p.tema, "natal");
   assert.equal(p.sensibilidade, 2);
   assert.equal(p.tamanhoLegenda, 18);
   assert.equal(p.radioFaixa, 3);

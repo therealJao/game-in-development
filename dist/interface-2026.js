@@ -1,10 +1,12 @@
 import { duracaoCutscene } from "./cutscenes.js";
 import { FAIXAS_RADIO, indiceRadio } from "./radio-menu.js";
 import { retratoAxel } from "./retrato-axel.js";
-const themes = ["cidade", "aero", "noite"];
+const themes = ["natal", "cidade", "aero", "noite"];
 export function validarPreferencias(p = {}) {
   return {
-    tema: themes.includes(p.tema) ? p.tema : "cidade",
+    // Natal 2026: o menu natalino vira o padrão (inclusive para quem já tinha preferências salvas).
+    tema: p.versaoNatal && themes.includes(p.tema) ? p.tema : "natal",
+    versaoNatal: true,
     sensibilidade: Math.max(0.3, Math.min(2, Number(p.sensibilidade) || 1)),
     tamanhoLegenda: Math.max(18, Math.min(32, Number(p.tamanhoLegenda) || 23)),
     legendas: p.legendas !== false,
@@ -28,11 +30,11 @@ export function montarInterface2026({
   } catch {}
   Object.assign(estado, validarPreferencias(prefs));
   const menu = document.getElementById("menu");
-  menu.innerHTML = `<div class="menu-shell"><header class="front-header"><h1>ESCAPE CODE</h1><div class="front-profile"><b>AXEL</b><span>Modo história</span><strong>2.25</strong></div></header>
+  menu.innerHTML = `<div class="menu-shell"><header class="front-header"><h1>ESCAPE CODE<span class="natal-sub">Edição de Natal</span></h1><div class="front-profile"><b>AXEL</b><span>Modo história</span><strong>2.25</strong></div></header>
   <nav class="front-tabs" aria-label="Navegação principal"><button data-front-tab="historia" class="active">HISTÓRIA</button><button data-front-tab="fases">CAPÍTULOS</button><button data-action="options">OPÇÕES</button><button data-action="credits">CRÉDITOS</button></nav>
   <section class="front-body" id="front-historia"><div class="front-list"><button data-action="new" class="selected"><span>01</span>Jogar história <b>↵</b></button><button data-front-tab="fases"><span>02</span>Escolher capítulo <b>›</b></button><button data-action="options"><span>03</span>Opções <b>›</b></button><button data-action="music"><span>♫</span><span id="musicStatus">ATIVAR MÚSICA</span></button></div><aside class="front-feature"><div class="gta-tag"><span>WHO IS THIS GTA 6</span><img src="assets/gta.png" alt="Grand Theft Auto VI" /></div><p>Axel. Uma Biz emprestada.<br>Um caminho nada normal de volta.</p></aside></section>
   <section class="front-body" id="front-fases" hidden><div id="front-chapters" class="front-list"></div><aside class="front-feature"><h2>Qual vai ser a próxima?</h2><p>Escolha um capítulo para jogar.<br>A história completa começa no quarto do Axel.</p></aside></section>
-  <footer class="front-footer"><label>TEMA <select id="temaMenu"><option value="cidade">Cidade</option><option value="aero">Frutiger Aero</option><option value="noite">Noite</option></select></label><span>↑ ↓ navegar &nbsp; ↵ escolher &nbsp; Esc voltar</span></footer></div>`;
+  <footer class="front-footer"><label>TEMA <select id="temaMenu"><option value="natal">Natal</option><option value="cidade">Cidade</option><option value="aero">Frutiger Aero</option><option value="noite">Noite</option></select></label><span>↑ ↓ navegar &nbsp; ↵ escolher &nbsp; Esc voltar</span></footer></div>`;
   const settings = document.getElementById("settings");
   const profile = menu.querySelector(".front-profile");
   profile.innerHTML =
@@ -164,7 +166,7 @@ export function montarInterface2026({
   ]);
   const themeLabel = document.createElement("label");
   themeLabel.innerHTML =
-    '<span>Tema do menu</span><select id="temaOpcoes"><option value="cidade">Cidade</option><option value="aero">Frutiger Aero</option><option value="noite">Noite</option></select>';
+    '<span>Tema do menu</span><select id="temaOpcoes"><option value="natal">Natal</option><option value="cidade">Cidade</option><option value="aero">Frutiger Aero</option><option value="noite">Noite</option></select>';
   add("Aparência", "theme", [themeLabel]);
   add("Capítulos", "chapters", [levels]);
   category.firstElementChild.click();

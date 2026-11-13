@@ -297,6 +297,7 @@ class CenaDoJogo {
     this.castelo = null; // Carregado ao desembarcar, poupando memória durante as fases anteriores.
     this.materiaisRealistas.preparar(this.room.scene, false, true);
     this.materiaisRealistas.preparar(this.menuScene.scene);
+    this.materiaisRealistas.preparar(this.menuScene.natal.scene, true);
     this.materiaisRealistas.preparar(this.classroom.scene, false, true);
     this.materiaisRealistas.preparar(this.dungeon.scene, false, true);
     this.materiaisRealistas.preparar(this.alisanave.voo, true);

@@ -1,3 +1,4 @@
+import { NATAL_ATIVO, criarToucaNatal } from "./natal.js";
 // Módulo do jogo. Consulte GUIA-DE-EDICAO.md antes de alterar estruturas.
 import { NOMES } from "./configuracao.js";
 import * as T from "./vendor/three.module.js";
@@ -358,6 +359,12 @@ export function criarMaicon() {
       0.015,
       0.075,
     ]);
+  if (NATAL_ATIVO()) {
+    const touca = criarToucaNatal(0.15);
+    touca.position.set(0, 0.17, -0.02);
+    touca.rotation.set(-0.2, 0, 0.05);
+    head.add(touca);
+  }
   let rope;
   return {
     group: g,
@@ -530,6 +537,12 @@ function criarPessoa({ teacher = false } = {}) {
       0.015,
       cloth,
     );
+  if (NATAL_ATIVO()) {
+    const touca = criarToucaNatal(0.138);
+    touca.position.set(0, 0.12, -0.01);
+    touca.rotation.set(-0.18, 0, -0.06);
+    head.add(touca);
+  }
   if (!teacher) g.scale.setScalar(0.87);
   return {
     group: g,

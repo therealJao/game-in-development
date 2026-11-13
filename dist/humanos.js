@@ -1,3 +1,4 @@
+import { NATAL_ATIVO, criarToucaNatal } from "./natal.js";
 // Corpos humanos articulados: ombro, cotovelo, quadril e joelho.
 import * as T from "./vendor/three.module.js";
 import {
@@ -138,6 +139,12 @@ export function criarHumano({
     [0, 0, 0],
     [1, 1.18, 1],
   );
+  if (NATAL_ATIVO()) {
+    const touca = criarToucaNatal(0.12);
+    touca.position.set(0, 0.11, -0.01);
+    touca.rotation.set(-0.18, 0, 0.05);
+    head.add(touca);
+  }
   hood.visible = false;
   return {
     group,

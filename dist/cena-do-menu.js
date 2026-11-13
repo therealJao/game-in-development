@@ -1,4 +1,5 @@
 import { criarMenuCidade, desenharMenuCidade } from "./menu-cidade.js";
+import { criarMenuNatal, desenharMenuNatal } from "./menu-natal.js";
 // Módulo do jogo. Consulte GUIA-DE-EDICAO.md antes de alterar estruturas.
 import * as T from "./vendor/three.module.js";
 import {
@@ -242,6 +243,7 @@ export function criarCenaDoMenu() {
   davy.group.position.set(4.8, 0, -1.8);
   davy.group.rotation.y = -0.55;
   return {
+    natal: criarMenuNatal(),
     cidade: criarMenuCidade(),
     noir: criarMenuNoir(),
     scene,
@@ -271,7 +273,8 @@ export function desenharMenu(cenaDoJogo, estado, time) {
     desenharChuteDoMenu(cenaDoJogo, estado, time);
     return;
   }
-  if (estado.tema === "noite") desenharNoir(cenaDoJogo, m, estado, time);
+  if (estado.tema === "natal") desenharMenuNatal(cenaDoJogo, estado, time);
+  else if (estado.tema === "noite") desenharNoir(cenaDoJogo, m, estado, time);
   else desenharMenuCidade(cenaDoJogo, estado, time);
   return;
   m.maicon.group.position.set(2.25, 0, -0.75);
