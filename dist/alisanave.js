@@ -346,8 +346,12 @@ export function criarCenasAlisanave() {
   criarCaixa(
     empresa,
     [17, 3, 0.05],
+    // Natal 2026: a primeira marca (prédio visto no voo) agora é o Preceiro, com o logotipo original.
     new T.MeshStandardMaterial({
-      map: texturaArquivo("assets/alisanave-logo.png"),
+      map: texturaArquivo("assets/lua/preceiro-faixa.png"),
+      emissive: "#ffffff",
+      emissiveMap: texturaArquivo("assets/lua/preceiro-faixa.png"),
+      emissiveIntensity: 0.35,
     }),
     [0, 10, 11.12],
   );
@@ -433,7 +437,8 @@ export function criarCenasAlisanave() {
     criarCaixa(sala, [0.15, 6, 14], obterMaterial("#eef0e9", 0.9), [x, 3, 0]);
   for (const z of [-7, 7])
     criarCaixa(sala, [14, 6, 0.15], obterMaterial("#edf0eb", 0.9), [0, 3, z]);
-  const logo = texturaArquivo("assets/alisanave-logo.png"),
+  // A segunda marca (placas da sala branca) agora é o Komprão Koch, com o logotipo original.
+  const logo = texturaArquivo("assets/lua/komprao-faixa.png"),
     logoMaterial = new T.MeshStandardMaterial({ map: logo, roughness: 0.6 });
   criarCaixa(sala, [4, 0.7, 0.025], logoMaterial, [0, 2.7, -6.87]);
   criarCaixa(

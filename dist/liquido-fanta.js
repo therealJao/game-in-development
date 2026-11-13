@@ -74,6 +74,16 @@ export function criarLiquidoFanta(perfil, parent, { base = 0.22, nivel = 1.18 } 
         `#include <emissivemap_fragment>
         if (topoLiquido) totalEmissiveRadiance += vec3(0.22, 0.05, 0.0);
         totalEmissiveRadiance += vec3(0.25, 0.18, 0.1) * espuma;`,
+      )
+      .replace(
+        "#include <opaque_fragment>",
+        `#include <opaque_fragment>
+        // Topo do refrigerante: laranja translúcido com brilho especular, sem "lavar" com o ambiente.
+        if (topoLiquido) {
+          float brilhoTopo = max(dot(normalize(vViewPosition), vec3(0.0, 1.0, 0.0)), 0.0);
+          gl_FragColor.rgb = mix(vec3(0.78, 0.24, 0.0), vec3(1.0, 0.55, 0.15), brilhoTopo * 0.5)
+            + vec3(1.0, 0.85, 0.6) * espuma * 0.6;
+        }`,
       );
   };
   material.customProgramCacheKey = () => "liquido-fanta-v1";
