@@ -1,6 +1,7 @@
 import { criarFortalezaColina, criarCeuDourado } from "./paisagem-castelo.js";
 // FASE ALISANAVE — modelos e cenas em tempo real, sem sequência de imagens.
 import * as T from "./vendor/three.module.js";
+import { criarBalsa } from "./balsa.js";
 import {
   criarCaixa,
   criarCilindro,
@@ -619,7 +620,8 @@ export function criarCenasAlisanave() {
   mar.position.set(70, -0.45, 450);
   mar.material.uniforms.noite.value = 1;
   porto.add(mar);
-  const barco = criarBarco();
+  // Natal 2026: o barquinho virou a balsa (ferry boat) da travessia Itajaí ⇄ Navegantes.
+  const barco = criarBalsa();
   const referenciasCeu = new T.Group();
   porto.add(referenciasCeu);
   referenciasCeu.visible = false;
@@ -1002,12 +1004,15 @@ export function desenharAlisanave(view, estado, tempo) {
   if (f.etapa === "barco") {
     const progresso = Math.min(1, t / DURACAO_BARCO),
       z = 126 + progresso * 190;
-    c.barco.position.set(141, 0.18 + Math.sin(t * 2) * 0.12, z);
-    c.barco.rotation.z = Math.sin(t * 1.8) * 0.035;
+    const balanco = 0.12 + Math.sin(t * 1.3) * 0.06;
+    c.barco.position.set(141, balanco, z);
+    c.barco.rotation.z = Math.sin(t * 1.1) * 0.012;
+    c.barco.rotation.x = Math.sin(t * 0.8) * 0.006;
+    c.barco.userData.animar?.(t);
     c.passageiro.group.visible = true;
-    c.passageiro.group.position.set(141, 1.05, z);
+    c.passageiro.group.position.set(141.3, balanco + 1.02, z + 1);
     c.passageiro.group.rotation.y = 0;
-    cam.position.set(155, 8.5, z - 26);
+    cam.position.set(150, 13.5, z - 42);
     cam.lookAt(141, 17 + progresso * 6, z + 80);
     c.referenciasCeu.visible = true;
     c.referenciasCeu.position.set(141, 0, z + 185);
