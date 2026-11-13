@@ -43,7 +43,16 @@ export class EfeitosVisuais {
             vec3 amostra=texture2D(imagem,uvTela+vec2(cos(a),sin(a))*pixel*r).rgb;
             halo+=max(amostra-vec3(1.0),vec3(0.0));}
           cor+=halo*(brilho/12.0);
-          float borda=smoothstep(.28,.88,length((uvTela-.5)*vec2(1.1,1.0)));cor*=1.0-borda*.10;
+          // Nitidez (unsharp mask leve) para texturas mais definidas.
+          vec3 vizinhos=texture2D(imagem,uvTela+vec2(pixel.x,0.0)).rgb+texture2D(imagem,uvTela-vec2(pixel.x,0.0)).rgb+texture2D(imagem,uvTela+vec2(0.0,pixel.y)).rgb+texture2D(imagem,uvTela-vec2(0.0,pixel.y)).rgb;
+          cor+= (cor-vizinhos*0.25)*0.35;
+          // Correção de cor cinematográfica: contraste, saturação e tons (quente nas luzes, frio nas sombras).
+          float luma=dot(cor,vec3(0.2126,0.7152,0.0722));
+          cor=mix(vec3(luma),cor,1.18);
+          cor=(cor-0.18)*1.08+0.18;
+          float lumaN=luma/(1.0+luma);
+          cor*=mix(vec3(0.94,0.98,1.06),vec3(1.05,1.0,0.94),smoothstep(0.15,0.75,lumaN));
+          float borda=smoothstep(.28,.88,length((uvTela-.5)*vec2(1.1,1.0)));cor*=1.0-borda*.16;
           gl_FragColor=vec4(max(cor,0.0),1.0);
           #include <tonemapping_fragment>
           #include <colorspace_fragment>

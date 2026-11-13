@@ -21,9 +21,15 @@ export async function criarPraiaVolei() {
   const scene = new T.Scene();
   scene.background = new T.Color("#7fcfff");
   scene.fog = new T.Fog("#a4dff3", 100, 340);
-  scene.add(new T.HemisphereLight("#ddfbff", "#9aa977", 2.6));
-  const sol = new T.DirectionalLight("#fff5d1", 3);
+  scene.add(new T.HemisphereLight("#cfeeff", "#b59a6a", 1.15));
+  // Sol forte de praia com sombras projetadas (contraste e profundidade).
+  const sol = new T.DirectionalLight("#fff0cc", 5.2);
   sol.position.set(-25, 45, 22);
+  sol.castShadow = true;
+  sol.shadow.mapSize.set(2048, 2048);
+  Object.assign(sol.shadow.camera, { left: -18, right: 18, top: 18, bottom: -18, near: 1, far: 120 });
+  sol.shadow.bias = -0.0003;
+  sol.shadow.normalBias = 0.03;
   scene.add(sol);
   const ceu = criarCeu(scene);
   const areia = obterMaterial("#eee0b2", 0.95),
@@ -266,14 +272,24 @@ export function desenharPraiaVolei(view, c, f) {
       z,
     );
     p.group.rotation.y = s.x < 0 ? 1.1 : -1.1;
-    if (p === c.axel) p.animate?.(t, intro ? 2 : Math.abs(s.vy || 0));
+    // Velocidade real de cada jogador (pela posição entre quadros) move pernas e braços.
+    const ant = (c.posAnterior ??= new Map()).get(p) ?? { x: s.x, t };
+    const dtq = Math.max(1 / 120, t - ant.t),
+      vel = intro ? 3 : Math.abs(s.x - ant.x) / dtq;
+    c.posAnterior.set(p, { x: s.x, t });
+    const noAr = !intro && s.y > 0.08;
+    if (p === c.axel) p.animate?.(t, intro ? 2 : Math.max(vel, Math.abs(s.vy || 0)));
     else if (p === c.nav) {
       p.head.rotation.y = Math.sin(t) * 0.1;
       p.arms?.forEach(
         (a, i) => (a.rotation.x = -0.3 - Math.sin(t * 2 + i) * 0.15 - s.golpe),
       );
     } else
-      p.animate(t, intro || f.etapa === "voleiVitoria" ? 1 : 0.1, s.golpe * 2);
+      p.animate(t, intro || f.etapa === "voleiVitoria" ? 1 : 0.1, s.golpe * 2, {
+        vel,
+        noAr,
+        olharX: Math.sign(v.bola.x - s.x) * 0.5,
+      });
   }
   c.bob.animate(t, 1);
   c.bob.group.position.y = Math.abs(Math.sin(t * 2)) * 0.15;
@@ -305,6 +321,6 @@ export function desenharPraiaVolei(view, c, f) {
   camera.near = 0.1;
   camera.far = 700;
   camera.updateProjectionMatrix();
-  view.renderer.toneMappingExposure = 1.03;
+  view.renderer.toneMappingExposure = 0.92;
   view.renderer.render(c.scene, camera);
 }
