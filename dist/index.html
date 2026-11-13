@@ -1,0 +1,649 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <meta name="theme-color" content="#080a09" />
+    <title>Escape Code — Modo História 3D</title>
+    <link rel="icon" href="assets/escape-code.ico" type="image/x-icon" />
+    <link rel="stylesheet" href="estilos.css" />
+    <link rel="stylesheet" href="interface-2026.css" />
+    <link rel="stylesheet" href="natal.css" />
+  </head>
+  <body>
+    <canvas
+      id="world"
+      aria-label="Cenário tridimensional do Escape Code"
+    ></canvas>
+    <div id="shade"></div>
+    <div id="damage"></div>
+    <div id="black"></div>
+    <div id="maiconScare" hidden role="img" aria-label="Maicon capturou Axel">
+      <img
+        src="assets/maicon-jumpscare.png"
+        alt=""
+        fetchpriority="high"
+        draggable="false"
+      />
+    </div>
+    <div id="loading">
+      <span class="logo-code">&lt;/&gt;</span>
+      <h2>ESCAPE CODE</h2>
+      <p id="loadText">Preparando cenas e modelos 3D…</p>
+      <div class="loading-line"></div>
+    </div>
+    <section
+      id="telefoneFinal"
+      hidden
+      aria-label="Celular do Axel em primeira pessoa"
+    >
+      <img src="assets/final/telefone.png" alt="Celular do Axel" />
+      <div id="telaTelefoneFinal"></div>
+    </section>
+    <section id="finalJogo" hidden>
+      <small>ESCAPE CODE · HISTÓRIA CONCLUÍDA</small>
+      <h2>VOCÊ VOLTOU.</h2>
+      <p>A Biz está com Brita. A aventura fica com vocês.</p>
+      <p>João Pedro · Lorenzo · André</p>
+      <p>Obrigado por jogar.</p>
+      <button data-action="menu">VOLTAR AO MENU</button>
+    </section>
+    <section id="menu" hidden>
+      <div class="menu-panel"></div>
+      <main>
+        <span class="eyebrow">UMA NOITE. UM CAMINHO DE VOLTA.</span>
+        <h1>ESCAPE<br /><span>CODE</span></h1>
+        <p class="menu-warning">A CIDADE AINDA ESTÁ ACORDADA.</p>
+        <nav aria-label="Menu principal">
+          <button class="menu-choice selected" data-action="new">
+            <strong>INICIAR HISTÓRIA</strong
+            ><small>Axel, Sorvetete e uma saída impossível.</small></button
+          ><button class="menu-choice" data-action="options">
+            <strong>OPÇÕES</strong
+            ><small>Som, qualidade e controles.</small></button
+          ><button class="menu-choice" data-action="credits">
+            <strong>CRÉDITOS</strong><small>João Pedro · Lorenzo · André</small>
+          </button>
+        </nav>
+        <p class="menu-description">
+          Aprenda HTML e CSS simples para abrir caminho.<br />Nas Backrooms,
+          pensar também é sobreviver.
+        </p>
+      </main>
+      <aside class="menu-note">
+        ● NÃO OLHE PARA TRÁS.<br /><small
+          >DO PRIMEIRO CORREDOR À ÚLTIMA ENTREGA</small
+        >
+      </aside>
+      <footer>
+        <span>VERSÃO 2.24 · HISTÓRIA 3D</span
+        ><button class="plain" data-action="music">
+          ♫ <span id="musicStatus">ATIVAR MÚSICA</span>
+        </button>
+      </footer>
+    </section>
+    <dialog id="settings" class="modal settings">
+      <button class="close" data-close aria-label="Fechar opções">×</button
+      ><span class="eyebrow">AJUSTE ANTES DE ENTRAR</span>
+      <h2>OPÇÕES</h2>
+      <label
+        >Volume geral
+        <input id="volume" type="range" min="0" max="100" value="60" /></label
+      ><label
+        >Volume da música
+        <input
+          id="musicVolume"
+          type="range"
+          min="0"
+          max="100"
+          value="35" /></label
+      ><label
+        >Qualidade gráfica
+        <select id="quality">
+          <option value="low">Baixa</option>
+          <option value="medium">Média</option>
+          <option value="high">Alta</option>
+          <option value="ultra" selected>
+            Ultra · HDR e sombras de contato
+          </option>
+        </select></label
+      ><label
+        ><input id="shiftToggle" type="checkbox" checked /> Trava Shift:
+        pressione para alternar corrida</label
+      ><button class="plain" data-action="motion">
+        MOVIMENTOS REDUZIDOS <b id="settingsMotion">OFF</b></button
+      ><button class="plain" data-action="help">COMO JOGAR →</button>
+      <p class="fine">
+        MÚSICA: Aint Da Homie No More — SweedyQ<br />Dois terminais + uma
+        recuperação opcional por fase.
+      </p>
+      <button class="button primary" data-close>VOLTAR</button>
+
+      <fieldset class="seletor-testes">
+        <legend>SELETOR DE LEVEL · TESTES</legend>
+        <label for="faseTeste">Fase ou cena inicial</label>
+        <select id="faseTeste">
+          <option value="quarto">Prólogo · Quarto do Axel</option>
+          <option value="backrooms-0">Fase 01 · Backrooms — setor 1</option>
+          <option value="backrooms-1">Fase 01 · Backrooms — setor 2</option>
+          <option value="backrooms-2">Fase 01 · Backrooms — setor 3</option>
+          <option value="limbo">Fase 02 · Resgate de SQLman / voo</option>
+          <option value="sala">Fase 02 · Sala branca / Charlie</option>
+          <option value="toboga">Fase 02 · Tobogã</option>
+          <option value="labirinto">Fase 02 · Porto / Yang Ming</option>
+          <option value="barco">Fase 02 · Viagem de barco</option>
+          <option value="chegada">Fase 03 · Chegada ao castelo</option>
+          <option value="salao">Fase 03 · Salão / briga e furtividade</option>
+          <option value="escada">Fase 03 · Escadaria / encontros</option>
+          <option value="terraco">Cutscene · Terraço / Gabriel Breier</option>
+          <option value="aero">Fase 04 · Cidade Frutiger Aero / queda</option>
+          <option value="aero-resgate">Fase 04 · Resgate / Naverdachi</option>
+          <option value="aero-transformacao">
+            Fase 04 · Transformação do Bluezão
+          </option>
+          <option value="aero-batalha">Fase 04 · Batalha de ritmo</option>
+          <option value="aero-programacao">
+            Programação · terminal da arena
+          </option>
+          <option value="aero-cozinha">Ponto Kente · salão e pedidos</option>
+          <option value="aero-pix">AlisaBank · pagar o lanche</option>
+          <option value="aero-pix-conta">
+            AlisaBank · conta de Naverdachi
+          </option>
+          <option value="aero-pix-camera">AlisaBank · testar leitura QR</option>
+          <option value="arc-clayface">Final · revelação do Clayface</option>
+          <option value="arc-escapar">Final · fugir pela brecha</option>
+          <option value="arc-peppa">Final · Backrooms da Peppa</option>
+          <option value="arc-level94">Final · chegada ao Level 94</option>
+          <option value="arc-colinas">Final · explorar as colinas</option>
+          <option value="arc-corrida94">Final · perseguição no Level 94</option>
+          <option value="arc-simpsons">Final · casa dos Simpsons</option>
+          <option value="arc-tv">Final · televisão e plantão</option>
+          <option value="arc-plantao">Final · notícia fictícia</option>
+          <option value="arc-portal">Final · portal de volta</option>
+          <option value="arc-biz">Final · recuperar a Biz</option>
+          <option value="arc-telefone">Final · ligar para Brita</option>
+          <option value="arc-viagem-biz">Final · pilotar até Brita</option>
+          <option value="arc-final">Final · reencontro e créditos</option>
+          <option value="arc-mercado">Komprão · Clayface e Coringa</option>
+          <option value="arc-compras">Komprão · fazer as compras</option>
+          <option value="arc-porta">Komprão · porta estranha</option>
+          <option value="arc-olho">Arcoplex · olhar pelo olho mágico</option>
+          <option value="arc-shopping">Arcoplex · explorar o shopping</option>
+          <option value="arc-fuga">Arcoplex · fugir dos passos</option>
+          <option value="arc-sala">Arcoplex · sessão e debate</option>
+          <option value="arc-resultado">Arcoplex · resultado da eleição</option>
+          <option value="lua-brita">
+            Brita · chegada e discussão na praia
+          </option>
+          <option value="lua-viagem">Lua · voo nas costas do Brita</option>
+          <option value="lua-preceiro">Lua · loja do Preceiro</option>
+          <option value="lua-jornal-preceiro">Axel · jornal do Preceiro</option>
+          <option value="lua-komprao">
+            Komprão · planeta gigante e jingle
+          </option>
+          <option value="lua-explosao">Lua · explosão do Preceiro</option>
+          <option value="lua-jornal-komprao">Axel · jornal do Komprão</option>
+          <option value="aero-praia">Praia do Pontal · chegada</option>
+          <option value="aero-volei">Vôlei · jogar agora</option>
+          <option value="aero-peugeot">Peugeot · rumo à praia</option>
+          <option value="aero-refeicao">Ponto Kente · lanches servidos</option>
+          <option value="aero-lanchonete">
+            Fase 04 · Ponto Kente / comemoração
+          </option>
+          <option value="aero-arena">
+            Fase 04 · Neo Química Arena / futebol
+          </option>
+        </select>
+        <p class="fine">
+          Inicia um teste novo, com pontuação zerada. A história normal continua
+          disponível no menu.
+        </p>
+        <button class="button secondary" data-action="testarFase">
+          INICIAR LEVEL SELECIONADO
+        </button>
+      </fieldset>
+    </dialog>
+    <section id="hud" hidden>
+      <aside id="placarAero" hidden aria-label="Placar do futebol">
+        <span id="placarAeroTexto" class="texto-acessivel"></span>
+        <div class="placar-linha">
+          <i class="faixa-nav"></i><b>Nav</b><strong id="golsNavAero">0</strong>
+        </div>
+        <div class="placar-linha">
+          <i class="faixa-axe"></i><b>Axe</b
+          ><strong id="golsAxelAero">0</strong>
+        </div>
+        <div class="placar-rodape">
+          <span>1º A 5</span><time id="tempoPartidaAero">00:00</time>
+        </div>
+        <small>E / ✕ A · CHUTAR</small>
+      </aside>
+      <div id="furtividade" hidden>
+        <span id="furtividadeTexto">CTRL PARA AGACHAR</span>
+        <div class="medidor-suspeita"><i id="furtividadeNivel"></i></div>
+      </div>
+      <aside id="minimapaFixo" aria-label="Minimapa fixo">
+        <div class="mapa-titulo">
+          <span id="tituloMinimapa">PLANTA</span><small>N ↑</small>
+        </div>
+        <canvas
+          id="minimapaCanvas"
+          width="480"
+          height="300"
+          aria-label="Mapa detalhado com terminais, saída e rota"
+        ></canvas>
+        <div class="mapa-legenda">
+          <span><i class="icone-terminal"></i>TERMINAL</span
+          ><span><i class="icone-saida"></i>SAÍDA</span
+          ><span><i class="icone-voce"></i>VOCÊ</span>
+        </div>
+      </aside>
+      <header class="hud-top">
+        <div>
+          <span class="tiny">ESCAPE CODE</span
+          ><strong id="chapterName">PRÓLOGO / EM CASA</strong>
+        </div>
+        <div class="wanted" id="wanted">
+          <span>PROCURADO <b id="enemyDistance">—</b></span>
+          <div id="boards"></div>
+        </div>
+        <button
+          class="icon"
+          data-action="map"
+          id="mapButton"
+          aria-label="Abrir mapa"
+        >
+          ⌖</button
+        ><button class="icon" data-action="pause" aria-label="Pausar">Ⅱ</button>
+      </header>
+      <div class="objective">
+        <small id="objectiveType">ANTES DA QUEDA</small
+        ><strong id="objective">Jogue Red Dead Redemption 2 em pé.</strong>
+        <p id="objectiveDetail">Aproxime-se da TV e pressione E.</p>
+      </div>
+      <div id="crosshair">·</div>
+      <div id="prompt" hidden><kbd>E</kbd><span>INTERAGIR</span></div>
+      <div id="announcement" role="status" aria-live="polite"></div>
+      <div id="subtitle" role="status"></div>
+      <div class="bottom">
+        <div class="character">
+          <span class="eyebrow">AXEL ASMÂNTICO</span
+          ><small id="characterCaption">FANTA. COWBOY. AINDA EM CASA.</small>
+        </div>
+        <div id="stamina">
+          <div>
+            <span>FÔLEGO</span
+            ><strong id="staminaNumber">45.0 <small>/ 45 s</small></strong>
+          </div>
+          <div class="bar"><i id="staminaFill"></i></div>
+          <small>C PARA RECUPERAR · ESPAÇO PARA REVIDAR</small>
+        </div>
+        <div class="score"><small>PONTOS</small><b id="score">00000</b></div>
+      </div>
+      <div class="keys">
+        <span
+          ><kbd>WASD</kbd> MOVER <kbd>MOUSE / ← →</kbd> OLHAR
+          <kbd>SHIFT</kbd> TRAVA DE CORRIDA <kbd>E</kbd> INTERAGIR
+          <kbd>M</kbd> MAPA</span
+        ><span><kbd>ESC</kbd> PAUSAR</span>
+      </div>
+      <div id="touch">
+        <div>
+          <button data-key="w">↑</button><button data-key="a">←</button
+          ><button data-key="s">↓</button><button data-key="d">→</button>
+        </div>
+        <div>
+          <button data-key="ArrowLeft">↶</button
+          ><button data-key="ArrowRight">↷</button
+          ><button data-action="interact">E</button
+          ><button data-action="recovery">C</button
+          ><button data-key="Shift">CORRER</button
+          ><button data-action="attack">⚡</button>
+        </div>
+      </div>
+    </section>
+    <dialog id="help" class="modal">
+      <button class="close" data-close aria-label="Fechar">×</button
+      ><span class="eyebrow">LEIA ANTES DE ENTRAR</span>
+      <h2>Ele corre.<br />Você precisa pensar.</h2>
+      <div class="help-grid">
+        <div>
+          <b>01 / Uma noite normal</b>
+          <p>
+            Controle Axel em casa com WASD. E inicia o PS5; ← e → controlam o
+            jogo na TV. Depois, vá até o sofá e sente com E.
+          </p>
+        </div>
+        <div>
+          <b>02 / Não fique parado</b>
+          <p>
+            Nas Backrooms, o SENAI corre mais rápido que sua caminhada. Shift
+            alterna a corrida sem precisar segurar a tecla. Essa opção pode ser
+            desativada em Opções. Ctrl alterna agachar (○/B no controle). Esc
+            pausa. Arraste a tela para olhar, ou use as setas. Clique no cenário
+            para capturar o mouse quando disponível.
+          </p>
+        </div>
+        <div>
+          <b>03 / Controle seu fôlego</b>
+          <p>
+            Você tem 45 s de corrida. C abre uma única atividade extra de
+            HTML/CSS por fase. Depois de resolvê-la, parar de se mover recupera
+            fôlego sem novos exercícios. O mundo pausa durante o editor. Erros
+            dão dicas; fechar sem resolver permite que o fôlego acabe.
+          </p>
+        </div>
+        <div>
+          <b>04 / Maicon não vem sozinho</b>
+          <p>
+            O SENAI arremessa Maicon. O cabo USB retira fôlego. Espaço atordoa
+            ameaças próximas, com recarga de 7 s. Ative os dois terminais e use
+            E na saída de cada capítulo.
+          </p>
+        </div>
+      </div>
+      <p class="fine">
+        O minimapa fixo mostra os terminais e a rota. M amplia o mapa. Sorvetete
+        segue você. Há sons intensos, escuridão e movimentos de câmera; a opção
+        “movimentos reduzidos” está disponível na pausa.
+      </p>
+      <button class="button primary" data-close>ENTENDI <span>→</span></button>
+    </dialog>
+    <dialog id="pause" class="modal compact">
+      <span class="eyebrow">JOGO PAUSADO</span>
+      <h2>Respire.<br />Ainda dá tempo.</h2>
+      <button class="plain" data-action="options">
+        OPÇÕES / SELETOR DE LEVEL
+      </button>
+      <button class="button primary" data-action="resume">
+        CONTINUAR <span>→</span></button
+      ><button class="button secondary" data-action="new">
+        REINICIAR HISTÓRIA</button
+      ><button class="plain" data-action="menu">VOLTAR AO MENU</button>
+      <div class="options">
+        <button class="plain" data-action="sound">
+          ÁUDIO <b class="soundStatus">ON</b></button
+        ><button class="plain" data-action="motion">
+          MOVIMENTOS REDUZIDOS <b id="motionStatus">OFF</b>
+        </button>
+      </div>
+    </dialog>
+    <dialog id="editor" class="modal editor">
+      <div class="editor-top">
+        <span>● TERMINAL SEGURO · SIMULAÇÃO PAUSADA</span
+        ><button
+          class="close"
+          data-action="closeEditor"
+          aria-label="Sair do editor"
+        >
+          ×
+        </button>
+      </div>
+      <div class="editor-grid">
+        <div class="brief">
+          <span class="eyebrow" id="challengeTag">TERMINAL 01</span>
+          <h2 id="challengeTitle"></h2>
+          <p id="challengeDescription"></p>
+          <div class="reward">RECUPERAÇÃO <b>45 SEGUNDOS</b></div>
+          <button class="plain" id="hintButton">
+            PRECISO DE UMA DICA <span>−20 PTS</span>
+          </button>
+          <p id="hintText" role="status"></p>
+        </div>
+        <form id="codeForm">
+          <div class="tab">
+            ● <b id="codeFilename">pagina.html</b>
+            <span id="codeLanguage">HTML</span>
+          </div>
+          <pre id="codeBefore"></pre>
+          <div class="code-entry">
+            <span>›</span
+            ><textarea
+              id="codeInput"
+              spellcheck="false"
+              aria-label="Resposta de HTML ou CSS"
+              placeholder="escolha uma opção ou digite"
+            ></textarea>
+          </div>
+          <pre id="codeAfter"></pre>
+          <div
+            id="choices"
+            class="answer-choices"
+            aria-label="Opções de resposta"
+          ></div>
+          <div id="feedback" role="status" aria-live="polite">
+            // Aguardando código…
+          </div>
+          <button class="button primary" type="submit" id="runCode">
+            EXECUTAR <span>↵</span>
+          </button>
+          <p class="fine">
+            Ctrl + Enter executa · Escolha uma opção ou digite sua resposta.
+          </p>
+        </form>
+      </div>
+    </dialog>
+    <dialog id="map" class="modal map-modal">
+      <button class="close" data-action="closeMap" aria-label="Fechar mapa">
+        ×</button
+      ><span class="eyebrow">PLANTA COMPLETA · EXPLORAÇÃO PAUSADA</span>
+      <h2>Encontre seu caminho.</h2>
+      <canvas
+        id="mapCanvas"
+        width="900"
+        height="720"
+        aria-label="Mapa completo com rota até o próximo terminal"
+      ></canvas>
+      <p class="fine">
+        BRANCO: VOCÊ · AZUL: TERMINAL · VERDE: SAÍDA · VERMELHO: SENAI<br />Siga
+        a rota azul pelos corredores. M ou Esc fecha.
+      </p>
+    </dialog>
+    <dialog id="result" class="modal compact">
+      <span class="eyebrow" id="resultTag">SINAL PERDIDO</span>
+      <h2 id="resultTitle">Ele te alcançou.</h2>
+      <p id="resultText"></p>
+      <div class="result-score">
+        <small>PONTUAÇÃO</small><b id="resultScore">00000</b>
+      </div>
+      <button class="button primary" id="resultButton" data-action="new">
+        TENTAR NOVAMENTE <span>↗</span></button
+      ><button class="plain" data-action="menu">VOLTAR AO MENU</button>
+    </dialog>
+    <section
+      id="batalhaRitmo"
+      hidden
+      aria-label="Batalha de ritmo contra Bluezão"
+    >
+      <div class="status-ritmo">
+        <span>BLUEZÃO HULKBUSTER</span
+        ><progress id="vidaBluezao" max="100" value="100"></progress
+        ><small id="statusRitmo">ACERTE AS NOTAS</small
+        ><label
+          >ENERGIA <progress id="energiaRitmo" max="100" value="70"></progress
+        ></label>
+      </div>
+      <canvas
+        id="pistaRitmo"
+        width="620"
+        height="590"
+        aria-label="Cinco trilhas de notas. A S D F G ou 1 2 3 4 5."
+      ></canvas>
+      <div class="teclas-ritmo">
+        <button data-trilha="0">A</button><button data-trilha="1">S</button
+        ><button data-trilha="2">D</button><button data-trilha="3">F</button
+        ><button data-trilha="4">G</button>
+      </div>
+      <p>L1 · L2 · ✕/A · R2 · R1 no controle</p>
+      <div id="derrotaRitmo" hidden>
+        <h2>ACERTE O RITMO</h2>
+        <p>
+          Use uma tecla por nota ao cruzar a linha. A luta reinicia sem repetir
+          o futebol.
+        </p>
+        <button class="button primary" data-action="repetirRitmo">
+          TENTAR A BATALHA NOVAMENTE</button
+        ><button class="plain" data-action="menu">MENU</button>
+      </div>
+    </section>
+    <canvas
+      id="voleiSprites"
+      hidden
+      aria-label="Minigame de vôlei em sprites"
+    ></canvas>
+    <section id="hudVolei" hidden aria-label="Vôlei de praia">
+      <div class="volei-score">
+        <span>AXEL + NAV</span><strong id="pontosVolei">0 : 0</strong
+        ><span>ALYA + JONESY</span><small>PRIMEIRO A 5 · MODO FÁCIL</small>
+      </div>
+      <div class="volei-ajuda">
+        <b id="acaoVolei">SACAR</b
+        ><span id="mensagemVolei">E / ESPAÇO / A para jogar</span
+        ><small
+          >A/D ou ← → mover · W / ↑ saltar · E / Espaço / A rebater · ESC
+          pausar</small
+        >
+      </div>
+    </section>
+    <aside id="hudArcoplex" hidden>
+      <small id="localArc"></small>
+      <p id="objetivoArc"></p>
+      <p id="promptArc"></p>
+      <small id="controlesArc"></small>
+    </aside>
+    <div id="olhoMagicoArc" hidden aria-label="Visão pelo olho mágico"></div>
+    <div id="transicaoArc" hidden></div>
+    <section id="fimLua" hidden class="lua-final">
+      <span class="eyebrow">LUA DOS MERCADOS</span>
+      <h2>Agora sim, preço melhor!</h2>
+      <p>Axel e a turma chegaram ao Komprão. Continua na próxima parte…</p>
+      <button class="button primary" data-action="repetirLua">
+        REVER A VIAGEM
+      </button>
+      <button class="button secondary" data-action="menu">
+        VOLTAR AO MENU
+      </button>
+    </section>
+    <section id="fimAero" hidden>
+      <span class="eyebrow">PARTIDA CONCLUÍDA</span>
+      <h2>Festa na praia!</h2>
+      <p>
+        Axel, Naverdachi, Bob Esponja, Alya e Jonesy comemoram juntos. Continua…
+        <button
+          class="button secondary"
+          data-action="testarFase"
+          onclick="document.getElementById('faseTeste').value = 'aero-volei'"
+        >
+          JOGAR NOVAMENTE
+        </button>
+      </p>
+      <button class="button secondary" data-action="menu">
+        VOLTAR AO MENU
+      </button>
+    </section>
+    <section id="previaAero" hidden aria-label="Prévia Frutiger Aero">
+      <span class="eyebrow">PRÓXIMO MUNDO</span>
+      <h2>FRUTIGER AERO</h2>
+      <p>Prévia subaquática · A aventura continua…</p>
+      <button data-action="menu" class="button secondary">
+        VOLTAR AO MENU
+      </button>
+    </section>
+    <dialog
+      id="painelProgramacao"
+      class="modal terminal-programacao"
+      aria-labelledby="tituloProgramacao"
+      aria-describedby="objetivoProgramacao"
+    >
+      <span id="temaProgramacao" class="eyebrow"></span>
+      <h2 id="tituloProgramacao"></h2>
+      <p id="objetivoProgramacao" class="objetivo-desafio"></p>
+      <pre id="codigoProgramacao"></pre>
+      <div id="opcoesProgramacao" class="answer-choices"></div>
+      <p id="feedbackProgramacao" role="status" aria-live="polite"></p>
+      <button id="dicaProgramacao" type="button" class="button secondary">
+        VER DICA
+      </button>
+      <button
+        id="continuarProgramacao"
+        type="button"
+        class="button primary"
+        hidden
+      >
+        ENTENDI · CONTINUAR
+      </button>
+      <button type="button" data-action="menu" class="button secondary">
+        VOLTAR AO MENU
+      </button>
+      <p class="ajuda-programacao">
+        Teclas 1, 2, 3 ou clique para responder · Controle: direcional e ✕/A
+      </p>
+    </dialog>
+    <dialog id="painelCastelo" class="modal compact">
+      <button
+        class="close"
+        data-action="closeCastelo"
+        aria-label="Fechar painel do castelo"
+      >
+        ×</button
+      ><span class="eyebrow">CASTELO · HTML / CSS</span>
+      <h2 id="tituloPainelCastelo"></h2>
+      <p id="objetivoCastelo" class="objetivo-desafio"></p>
+      <pre id="codigoPainelCastelo"></pre>
+      <div id="opcoesCastelo" class="answer-choices"></div>
+      <p id="feedbackCastelo" role="status"></p>
+    </dialog>
+    <dialog id="credits" class="modal">
+      <button class="close" data-close aria-label="Fechar créditos">×</button
+      ><span class="eyebrow">ESCAPE CODE / CODEQUEST</span>
+      <h2>QUEM ABRIU<br />A PORTA.</h2>
+      <p class="team-credit">João Pedro<br />Lorenzo<br />André</p>
+      <p>Equipe do projeto Escape Code / CodeQuest.</p>
+      <p>
+        Axel, Pug articulado, Maicon, sala, sofá, PS5 e cenários: malhas
+        construídas para esta versão. O Pug usa uma escultura simplificada com
+        pregas, máscara, cauda e patas; não é uma digitalização fotorrealista.
+      </p>
+      <p>
+        Controle 3D: <b>PS5 Controller — Taohid Animation</b>, licença CC BY
+        4.0. Modelo artístico independente do DualSense, não um arquivo oficial
+        da Sony. Adaptado em escala, posição e materiais para o jogo.
+      </p>
+      <p>
+        Referências SENAI, Fanta, GTA e Maicon: imagens fornecidas pelo usuário.
+        Os personagens são fictícios no contexto desta história.
+      </p>
+      <p>
+        Renderização: Three.js (MIT). Aplicativo Windows: Microsoft WebView2.
+        Não foram usadas ferramentas de geração de imagens ou modelos por IA. O
+        código e a modelagem paramétrica foram escritos com assistência de IA.
+      </p>
+      <button class="button primary" data-close>VOLTAR <span>→</span></button>
+    </dialog>
+    <dialog id="painelPorto" class="modal compact">
+      <span class="eyebrow">ALISANAVE / PROGRAMAÇÃO SIMPLES</span>
+      <h2 id="tituloPainelPorto"></h2>
+      <pre id="codigoPainelPorto"></pre>
+      <div id="opcoesPainelPorto"></div>
+      <p id="respostaPainelPorto" role="status"></p>
+    </dialog>
+    <dialog
+      id="celularPix"
+      class="celular-pix"
+      aria-label="Celular de Naverdachi — AlisaBank"
+    >
+      <div class="corpo-celular">
+        <img
+          src="assets/alisabank/celular.png"
+          alt="Celular de Naverdachi"
+          class="png-celular"
+        />
+        <div id="telaAlisaBank" class="tela-alisabank"></div>
+        <div class="ilha-celular" aria-hidden="true"></div>
+      </div>
+    </dialog>
+    <script src="vendor/jsQR.js"></script>
+    <script type="module" src="jogo.js"></script>
+  </body>
+</html>

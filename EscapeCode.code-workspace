@@ -1,0 +1,44 @@
+{
+  "folders": [
+    {
+      "path": "."
+    }
+  ],
+  "settings": {
+    "files.exclude": {
+      "work": true,
+      "**/backup-*": true
+    },
+    "editor.tabSize": 2,
+    "editor.insertSpaces": true
+  },
+  "tasks": {
+    "version": "2.0.0",
+    "tasks": [
+      {
+        "label": "Abrir jogo (mesmo EXE)",
+        "type": "shell",
+        "command": ".\\Escape-Code.exe",
+        "problemMatcher": []
+      },
+      {
+        "label": "Jogar no navegador",
+        "type": "shell",
+        "command": "npm start",
+        "problemMatcher": []
+      },
+      {
+        "label": "Testar jogo",
+        "type": "shell",
+        "command": "npm test",
+        "problemMatcher": []
+      },
+      {
+        "label": "Recompilar aplicativo nativo (mesmo EXE)",
+        "type": "shell",
+        "command": "powershell -File scripts/build-windows.ps1",
+        "problemMatcher": []
+      }
+    ]
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "name": "escape-code-story-3d",
+  "version": "2.25.0",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "start": "node server.mjs",
+    "test": "node --test --experimental-test-isolation=none tests/*.test.js"
+  }
+}
