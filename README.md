@@ -2,11 +2,9 @@
 
 ## Como jogar (Windows)
 
-1. No GitHub, baixe o projeto: **Code → Download ZIP** (branch `claude/elegant-brahmagupta-3tb98i`) e extraia.
-2. Abra **Escape-Code.exe**, que fica na mesma pasta que a pasta **dist**. O EXE é só o lançador (500 KB): ele roda o jogo direto da pasta `dist`.
-3. Não separe o EXE da pasta `dist`. Requer o WebView2 do Windows (já vem no Windows 10/11).
+Baixe só o **Escape-Code.exe** (181 MB, com o jogo inteiro dentro) e dê dois cliques. A primeira abertura extrai o jogo uma única vez; as seguintes abrem direto. Requer o WebView2 do Windows (já vem no Windows 10/11).
 
-O EXE antigo do Drive extraía 240 MB a cada abertura, o que deixava o jogo lento para abrir. O lançador novo não extrai o jogo e abre direto.
+Se houver uma pasta **dist** ao lado do EXE, ele usa essa pasta (útil para editar o jogo).
 
 Para gerar um EXE único com tudo embutido (por exemplo, para levar num pendrive): `powershell -File scripts/build-windows.ps1`.
 
