@@ -67,8 +67,11 @@ export class EfeitosVisuais {
     }
     this.material.uniforms.oclusao.value = p.oclusao;
     this.material.uniforms.brilho.value = p.brilho;
+    // No perfil baixo o pós-processamento é desligado: desenho direto na tela.
+    this.ativo = nome !== "low";
   }
   iniciar() {
+    if (this.ativo === false) return;
     const tamanho = this.renderer.getDrawingBufferSize(new T.Vector2());
     if (this.alvo.width !== tamanho.x || this.alvo.height !== tamanho.y)
       this.alvo.setSize(tamanho.x, tamanho.y);
@@ -76,6 +79,7 @@ export class EfeitosVisuais {
     this.renderer.setRenderTarget(this.alvo);
   }
   concluir(camera) {
+    if (this.ativo === false || this.renderer.xr?.isPresenting) return;
     this.material.uniforms.inversa.value.copy(camera.projectionMatrixInverse);
     this.renderer.setRenderTarget(null);
     this.renderer.render(this.cena, this.camera);

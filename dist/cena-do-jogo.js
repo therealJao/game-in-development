@@ -310,9 +310,27 @@ class CenaDoJogo {
     this.axel.limbs[3].rotation.set(-0.7, 0, -0.9);
     return true;
   }
+  /** Resolução dinâmica: baixa a escala quando o quadro passa de ~22 ms e sobe quando sobra folga. */
+  ajustarResolucao(ms) {
+    if (!this.escalaMaxima || this.renderer.xr?.isPresenting) return;
+    this.mediaQuadro = (this.mediaQuadro ?? 16) * 0.95 + Math.min(ms, 100) * 0.05;
+    this.esperaEscala = (this.esperaEscala || 0) + 1;
+    if (this.esperaEscala < 45) return;
+    let escala = this.escalaAtual;
+    if (this.mediaQuadro > 22) escala = Math.max(0.55, escala - 0.1);
+    else if (this.mediaQuadro < 13) escala = Math.min(this.escalaMaxima, escala + 0.05);
+    if (Math.abs(escala - this.escalaAtual) > 0.001) {
+      this.escalaAtual = escala;
+      this.renderer.setPixelRatio(escala);
+      this.redimensionar();
+      this.esperaEscala = 0;
+    }
+  }
   definirQualidade(value) {
     const perfil = perfilGrafico(value);
-    this.renderer.setPixelRatio(escalaRenderizacao(value, devicePixelRatio));
+    this.escalaMaxima = this.escalaAtual = escalaRenderizacao(value, devicePixelRatio);
+    this.esperaEscala = 0;
+    this.renderer.setPixelRatio(this.escalaAtual);
     this.renderer.shadowMap.enabled = perfil.sombras;
     this.efeitos.definirQualidade(value);
     this.materiaisRealistas.definirQualidade(value);

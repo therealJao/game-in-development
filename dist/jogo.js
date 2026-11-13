@@ -1,4 +1,5 @@
 import { montarInterface2026 } from "./interface-2026.js";
+import { detectarQualidade } from "./qualidade-grafica.js";
 import { FAIXAS_RADIO, indiceRadio } from "./radio-menu.js";
 import { solicitarPulo } from "./cutscenes.js";
 let interface2026;
@@ -152,12 +153,13 @@ const estado = {
   walkablePug: (x, z) => podeCaminhar(estado.level.map, x, z, 0.2), // Impede o cachorro de atravessar as paredes.
 };
 let tempoJogo = 0,
+  ultimoQuadro = 0,
   musicaMenu = null;
 estado.shiftToggle = true;
 estado.runLocked = false;
 estado.volume = 0.6;
 estado.musicVolume = 0.35;
-estado.quality = "ultra";
+estado.quality = "medium";
 estado.storyVariant = 0;
 function sincronizarMusica() {
   if (!musicaMenu) return;
@@ -202,7 +204,7 @@ function salvarOpcoes() {
         volume: estado.volume,
         musicVolume: estado.musicVolume,
         quality: estado.quality,
-        versaoGraficos: "realismo-1",
+        versaoGraficos: "natal-2",
         shiftToggle: estado.shiftToggle,
         reduced: estado.reduced,
       }),
@@ -218,10 +220,11 @@ function carregarOpcoes() {
       if (Number.isFinite(saved[key]))
         estado[key] = Math.max(0, Math.min(1, saved[key]));
     if (
-      saved.versaoGraficos === "realismo-1" &&
+      saved.versaoGraficos === "natal-2" &&
       ["low", "medium", "high", "ultra"].includes(saved.quality)
     )
       estado.quality = saved.quality;
+    else estado.quality = detectarQualidade(cenaDoJogo.renderer);
     for (const key of ["shiftToggle", "reduced"])
       if (typeof saved[key] === "boolean") estado[key] = saved[key];
   } catch {}
@@ -2175,6 +2178,8 @@ function executarQuadro(timestamp) {
   elemento("shade").style.opacity = naPraia ? 0.08 : 1;
   atualizarMinimapaFixo(timestamp);
   if (cenaDoJogo) cenaDoJogo.armaPendente = false;
+  if (cenaDoJogo && ultimoQuadro) cenaDoJogo.ajustarResolucao(timestamp - ultimoQuadro);
+  ultimoQuadro = timestamp;
   cenaDoJogo?.efeitos?.iniciar();
   if (cenaDoJogo)
     cenaDoJogo.desenhar(
