@@ -1,3 +1,5 @@
+import { NATAL_ATIVO, criarToucaNatal } from "./natal.js";
+import { criarLiquidoFanta } from "./liquido-fanta.js";
 // MODELOS 3D — altere nomes em configuracao.js; preserve a estrutura das malhas.
 import { NOMES } from "./configuracao.js";
 import * as T from "./vendor/three.module.js";
@@ -141,23 +143,40 @@ export function criarAxel() {
     [1.48, 0.11],
     [1.52, 0.12],
   ].map(([y, r]) => new T.Vector2(r, y));
-  criarMalha(
+  // Garrafa PET transparente com o refrigerante dentro (o líquido balança: liquido-fanta.js).
+  const pet = new T.MeshPhysicalMaterial({
+    color: "#fff6ec",
+    roughness: 0.05,
+    metalness: 0,
+    clearcoat: 1,
+    clearcoatRoughness: 0.04,
+    transparent: true,
+    opacity: 0.2,
+    depthWrite: false,
+    side: T.DoubleSide,
+    envMapIntensity: 1.6,
+  });
+  pet.clone = () => pet;
+  const casca = criarMalha(
     body,
     new T.LatheGeometry(profile, 64),
-    orange,
+    pet,
     [0, 0.22, 0],
     [0, 0, 0],
     [1, 1, 1],
     "Garrafa_Fanta_malha",
   );
+  casca.renderOrder = 3;
+  casca.castShadow = true;
+  const liquido = criarLiquidoFanta(profile, body, { base: 0.22, nivel: 1.16 });
   for (let i = 0; i < 7; i++)
     criarMalha(
       body,
       new T.TorusGeometry(0.285, 0.013, 8, 64),
-      orange,
+      pet,
       [0, 0.39 + i * 0.12, 0],
       [Math.PI / 2, 0, 0],
-    );
+    ).renderOrder = 3;
   criarCilindro(body, 0.118, 0.118, 0.12, obterMaterial("#d66d05", 0.4), [0, 1.79, 0]);
   for (let i = 0; i < 24; i++) {
     const a = (i / 24) * Math.PI * 2;
@@ -208,6 +227,14 @@ export function criarAxel() {
   );
   criarMalha(hat, new T.CylinderGeometry(0.19, 0.23, 0.22, 32), brown, [0, 0.12, 0], [0, 0, -0.06]);
   criarCilindro(hat, 0.234, 0.234, 0.045, dark, [0, 0.025, 0]);
+  if (NATAL_ATIVO()) {
+    // Natal: a touca do Papai Noel substitui o chapéu de cowboy.
+    hat.visible = false;
+    const touca = criarToucaNatal(0.135);
+    touca.position.set(0, 1.83, 0);
+    touca.rotation.set(-0.12, 0, 0.08);
+    body.add(touca);
+  }
   const limbs = [];
   for (const side of [-1, 1]) {
     const leg = new T.Group();

@@ -5,6 +5,7 @@ export const NOMES = {
   protagonista: "Axel", // Nome do personagem controlado pelo jogador.
 };
 export const CONFIGURACAO = {
+  natal: true, // Tema de Natal: neve, toucas, árvores e luzes. Use false para desligar.
   folegoMaximo: 45, // Segundos de fôlego quando a barra está cheia.
   velocidadeCaminhada: 3.5, // Metros por segundo caminhando.
   velocidadeCorrida: 7.2, // Metros por segundo correndo.
