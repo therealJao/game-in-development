@@ -1,14 +1,10 @@
+// Rádio do menu — Natal 2026. Melodias tradicionais de domínio público, arranjadas e
+// sintetizadas para o jogo (sinos, coral sintético, baixo e guizos). Arquivos em assets/radio/.
 export const FAIXAS_RADIO = Object.freeze([
-  {
-    titulo: "Modjo - Lady (Hear Me Tonight)",
-    arquivo: "assets/radio/faixa-1.m4a",
-  },
-  {
-    titulo: "Fergie feat. Ludacris - Glamorous",
-    arquivo: "assets/radio/faixa-2.m4a",
-  },
-  { titulo: "Rihanna - Diamonds", arquivo: "assets/radio/faixa-3.m4a" },
-  { titulo: "Amerie - 1 Thing", arquivo: "assets/radio/faixa-4.m4a" },
+  { titulo: "Jingle Bells (tradicional)", arquivo: "assets/radio/natal-1.mp3" },
+  { titulo: "Noite Feliz (tradicional)", arquivo: "assets/radio/natal-2.mp3" },
+  { titulo: "We Wish You a Merry Christmas (tradicional)", arquivo: "assets/radio/natal-3.mp3" },
+  { titulo: "Deck the Halls (tradicional)", arquivo: "assets/radio/natal-4.mp3" },
 ]);
 export function indiceRadio(value) {
   return Number.isInteger(Number(value))

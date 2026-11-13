@@ -3804,6 +3804,16 @@ async function inicializarJogo() {
     elemento("loading").hidden = true;
     prepararFase(0, true);
     prepararVR();
+    // O navegador só libera som depois de um clique/tecla: a rádio de Natal começa no primeiro.
+    const liberarSom = () => {
+      audio.iniciar?.();
+      if (estado.radioLigada !== false) sincronizarMusica();
+      removeEventListener("pointerdown", liberarSom);
+      removeEventListener("keydown", liberarSom);
+    };
+    addEventListener("pointerdown", liberarSom);
+    addEventListener("keydown", liberarSom);
+    sincronizarMusica();
     const testeDireto = new URLSearchParams(window.location?.search || "").get(
       "teste",
     );

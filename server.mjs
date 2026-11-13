@@ -9,6 +9,8 @@ const root = path.resolve("dist"),
     ".png": "image/png",
     ".wav": "audio/wav",
     ".m4a": "audio/mp4",
+    ".mp3": "audio/mpeg",
+    ".mp4": "video/mp4",
     ".glb": "model/gltf-binary",
     ".txt": "text/plain; charset=utf-8",
   };

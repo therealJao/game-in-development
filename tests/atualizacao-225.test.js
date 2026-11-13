@@ -62,7 +62,7 @@ test("botão não pula partidas, compras, terminais nem a interação do telefon
     "um desafio obrigatório continua pendente após avançar o relógio",
   );
 });
-test("opções e rádio validam os valores persistidos; a primeira faixa é Lady", () => {
+test("opções e rádio validam os valores persistidos; a primeira faixa é Jingle Bells", () => {
   const p = validarPreferencias({
     tema: "invalid",
     sensibilidade: 999,
@@ -76,7 +76,7 @@ test("opções e rádio validam os valores persistidos; a primeira faixa é Lady
   assert.equal(p.radioFaixa, 3);
   assert.equal(p.maos, false);
   assert.equal(indiceRadio(NaN), 0);
-  assert.match(FAIXAS_RADIO[0].titulo, /Lady/);
+  assert.match(FAIXAS_RADIO[0].titulo, /Jingle Bells/);
   assert.equal(FAIXAS_RADIO.length, 4);
 });
 test("braços aparecem nas câmeras de primeira pessoa e não nas partidas vistas de fora", () => {
