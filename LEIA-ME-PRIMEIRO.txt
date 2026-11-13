@@ -1,0 +1,10 @@
+ESCAPE CODE — CODIGO ORGANIZADO
+
+1. Abra Escape-Code.exe para jogar.
+2. Abra EscapeCode.code-workspace no VS Code para editar.
+3. Nomes e ajustes: dist/configuracao.js.
+4. Salve, feche e abra o MESMO Escape-Code.exe.
+
+Sorvetete e Brita ja estao configurados.
+Nao precisa recompilar para alterar o jogo. Mantenha dist junto do EXE.
+Leia GUIA-DE-EDICAO.md antes de alterar a estrutura dos arquivos.
