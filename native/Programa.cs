@@ -53,7 +53,7 @@ internal static class Programa
         int pid; if(Int32.TryParse(args[i+1],out pid))try { System.Diagnostics.Process.GetProcessById(pid).WaitForExit(10000); }catch(ArgumentException){}
       }
       TesteInicializacao=Array.IndexOf(args,"--smoke-test")>=0;
-      string baseDir=Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),"EscapeCode3D","2.15");
+      string baseDir=Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),"EscapeCode3D","2.26-natal");
       for(int i=0;i<args.Length-1;i++)
       {
         if(args[i]=="--data-dir")baseDir=Path.GetFullPath(args[i+1]);
@@ -67,6 +67,13 @@ internal static class Programa
       PastaDados=baseDir;
       PastaConteudo=Path.Combine(baseDir,"content");
       Directory.CreateDirectory(PastaConteudo);
+      // Extrai o pacote só na primeira abertura (ou quando o EXE muda). Antes, extraía tudo a cada abertura.
+      var infoExe=new FileInfo(Assembly.GetExecutingAssembly().Location);
+      string assinatura=infoExe.Length+"|"+infoExe.LastWriteTimeUtc.Ticks;
+      string marcador=Path.Combine(PastaConteudo,".pacote-extraido");
+      bool jaExtraido=PastaFonte==null && File.Exists(marcador) && File.ReadAllText(marcador)==assinatura
+        && File.Exists(Path.Combine(PastaConteudo,"Microsoft.Web.WebView2.Core.dll"));
+      if(!jaExtraido)
       using(Stream stream=AbrirPacote())
       using(var archive=new ZipArchive(stream,ZipArchiveMode.Read))
       {
@@ -83,6 +90,7 @@ internal static class Programa
           using(var input=entry.Open())using(var output=new FileStream(destination,FileMode.Create,FileAccess.Write))input.CopyTo(output);
         }
       }
+      if(!jaExtraido)try { File.WriteAllText(marcador,assinatura); }catch(IOException){}
       AppDomain.CurrentDomain.AssemblyResolve+=(sender,eventArgs)=>
       {
         string name=new AssemblyName(eventArgs.Name).Name;
