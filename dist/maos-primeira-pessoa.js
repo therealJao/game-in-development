@@ -35,7 +35,73 @@ export function primeiraPessoaAtiva(e) {
   return false;
 }
 
+/** Mãos procedurais usadas quando assets/maos/arms.fbx não está presente. */
+function criarMaosProcedurais() {
+  const group = new T.Group();
+  group.name = "Bracos_procedurais_Fanta";
+  const pele = new T.MeshPhysicalMaterial({
+    color: "#ff7a0c",
+    roughness: 0.32,
+    clearcoat: 0.55,
+    clearcoatRoughness: 0.25,
+  });
+  const lado = (s) => {
+    const braco = new T.Group();
+    const ante = new T.Mesh(new T.CapsuleGeometry(0.055, 0.42, 6, 14), pele);
+    ante.rotation.x = Math.PI / 2;
+    ante.position.z = 0.18;
+    braco.add(ante);
+    const mao = new T.Group();
+    const palma = new T.Mesh(new T.BoxGeometry(0.1, 0.035, 0.11, 2, 1, 2), pele);
+    mao.add(palma);
+    for (let i = 0; i < 4; i++) {
+      const dedo = new T.Mesh(new T.CapsuleGeometry(0.0125, 0.05, 4, 8), pele);
+      dedo.rotation.x = Math.PI / 2 - 0.5;
+      dedo.position.set(-0.036 + i * 0.024, -0.012, -0.075);
+      mao.add(dedo);
+    }
+    const polegar = new T.Mesh(new T.CapsuleGeometry(0.014, 0.04, 4, 8), pele);
+    polegar.rotation.set(Math.PI / 2, 0, s * 0.9);
+    polegar.position.set(-s * 0.06, 0, -0.02);
+    mao.add(polegar);
+    mao.position.z = -0.08;
+    braco.add(mao);
+    braco.position.set(s * 0.24, -0.06, 0.12);
+    braco.rotation.y = -s * 0.18;
+    group.add(braco);
+    return braco;
+  };
+  const bracos = [lado(-1), lado(1)];
+  group.position.set(0, -0.34, -0.82);
+  return {
+    group,
+    model: group,
+    bones: [],
+    segurarControle() {},
+    animate(t, moving, running, interaction) {
+      const speed = running ? 11 : 7,
+        amount = moving ? 0.018 : 0.003;
+      group.position.set(
+        Math.sin(t * speed) * amount,
+        -0.34 + Math.sin(t * speed * 2) * amount,
+        -0.82 + interaction * 0.08,
+      );
+      group.rotation.set(0.12 + interaction * 0.15, Math.sin(t * 1.2) * 0.012, 0);
+      bracos.forEach((b, i) => (b.position.y = -0.06 + Math.sin(t * speed + i * Math.PI) * amount * 0.6));
+    },
+  };
+}
+
 export async function carregarMaos() {
+  try {
+    return await carregarMaosFBX();
+  } catch (erro) {
+    console.warn("Mãos FBX indisponíveis; usando mãos procedurais.", erro?.message);
+    return criarMaosProcedurais();
+  }
+}
+
+async function carregarMaosFBX() {
   const manager = new T.LoadingManager();
   manager.setURLModifier((url) =>
     /\.(png|jpg|jpeg)$/i.test(url) ? "assets/maos/arm1Color.png" : url,
