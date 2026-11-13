@@ -11,6 +11,7 @@ import {
   criarNeve,
   animarNatal,
 } from "./natal.js";
+import { criarSuperficieReflexiva } from "./reflexo.js";
 
 /** Menu de Natal: praça nevada à noite, casas com janelas acesas, árvore gigante e a turma de touca. */
 function texturaNeveChao() {
@@ -206,12 +207,10 @@ export function criarMenuNatal() {
   chao.receiveShadow = true;
   chao.userData.semNeve = true;
   scene.add(chao);
-  const gelo = new T.Mesh(
-    new T.CircleGeometry(4.2, 48),
-    new T.MeshPhysicalMaterial({ color: "#a8c4e8", roughness: 0.04, metalness: 0.1, clearcoat: 1, transparent: true, opacity: 0.85 }),
-  );
+  // Lago congelado com reflexo em tempo real (Alto/Ultra) das luzes, da árvore e da turma.
+  const gelo = criarSuperficieReflexiva(new T.CircleGeometry(4.6, 64), { cor: "#9fbde6", forca: 0.85, distorcao: 0.0025 });
   gelo.rotation.x = -Math.PI / 2;
-  gelo.position.set(1.2, 0.05, -2.2);
+  gelo.position.set(3.4, 0.06, -1.6);
   gelo.receiveShadow = true;
   scene.add(gelo);
 
@@ -290,7 +289,7 @@ export function criarMenuNatal() {
 
   const neve = criarNeve({ quantidade: 3200, area: 30, altura: 14 });
   scene.add(neve);
-  return { scene, ceu, axel, cachorro, maicon, brita, arvore, varais, arcoLuz, inicio: null };
+  return { scene, gelo, ceu, axel, cachorro, maicon, brita, arvore, varais, arcoLuz, inicio: null };
 }
 
 export function desenharMenuNatal(view, estado, time) {
@@ -298,6 +297,7 @@ export function desenharMenuNatal(view, estado, time) {
   n.inicio ??= time;
   const t = estado.reduced ? 0 : time - n.inicio;
   n.ceu.material.uniforms.uTempo.value = time;
+  n.gelo.userData.reflexoAtivo = estado.quality === "high" || estado.quality === "ultra";
   animarNatal(n.scene, time);
   // Axel anda de um lado para o outro e para: o líquido balança na freada.
   const ciclo = (t % 9) / 9,

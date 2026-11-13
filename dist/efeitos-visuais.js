@@ -71,7 +71,7 @@ export class EfeitosVisuais {
     this.ativo = nome !== "low";
   }
   iniciar() {
-    if (this.ativo === false) return;
+    if (this.ativo === false || this.renderer.xr?.isPresenting) return;
     const tamanho = this.renderer.getDrawingBufferSize(new T.Vector2());
     if (this.alvo.width !== tamanho.x || this.alvo.height !== tamanho.y)
       this.alvo.setSize(tamanho.x, tamanho.y);

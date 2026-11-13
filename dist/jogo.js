@@ -1,5 +1,7 @@
 import { montarInterface2026 } from "./interface-2026.js";
 import { detectarQualidade } from "./qualidade-grafica.js";
+import { ModoVR } from "./vr.js";
+let modoVR = null;
 import { FAIXAS_RADIO, indiceRadio } from "./radio-menu.js";
 import { solicitarPulo } from "./cutscenes.js";
 let interface2026;
@@ -1970,9 +1972,11 @@ const controleFisico = new ControlesGamepad();
 let controlePresente = false,
   entradaAnteriorControle = null;
 function atualizarEntradaControle(dt) {
-  const entrada = controleFisico.ler(
-    typeof navigator !== "undefined" ? navigator.getGamepads?.() || [] : [],
-  );
+  const padVR = modoVR?.ativo ? modoVR.gamepadVirtual() : null;
+  const entrada = controleFisico.ler([
+    ...(padVR ? [padVR] : []),
+    ...(typeof navigator !== "undefined" ? navigator.getGamepads?.() || [] : []),
+  ]);
   entrada.agachado = Boolean(estado.agacharTeclado || estado.agacharControle);
   teclasPressionadas.controle = entrada;
   if (entrada.desconectou) {
@@ -2187,14 +2191,15 @@ function executarQuadro(timestamp) {
       estado.reduced && estado.mode === "menu" ? 0 : timestamp / 1000,
     );
   cenaDoJogo?.efeitos?.concluir(cenaDoJogo.camera);
-  cenaDoJogo?.desenharArma?.(estado, timestamp / 1000);
+  if (!modoVR?.ativo) cenaDoJogo?.desenharArma?.(estado, timestamp / 1000);
   if (timestamp > avisoAte) elemento("announcement").classList.remove("show");
   if (
     timestamp > legendaAte &&
     !(estado.mode === "paused" && estado.previousMode === "aero")
   )
     elemento("subtitle").classList.remove("show");
-  requestAnimationFrame(executarQuadro);
+  // Em VR quem chama o quadro é o setAnimationLoop do WebXR.
+  if (!modoVR?.ativo) requestAnimationFrame(executarQuadro);
 }
 /* Carrega os recursos e só então libera o menu. */
 // Atualiza também os nomes escritos no HTML, usando o mesmo arquivo de configuração.
@@ -3798,6 +3803,7 @@ async function inicializarJogo() {
     });
     elemento("loading").hidden = true;
     prepararFase(0, true);
+    prepararVR();
     const testeDireto = new URLSearchParams(window.location?.search || "").get(
       "teste",
     );
@@ -3897,4 +3903,30 @@ async function inicializarJogo() {
       " Abra pelo executável ou pelo endereço local com WebGL 2 habilitado.";
   }
 }
+/** Cria o modo VR e o botão "Entrar em VR" no menu quando há um headset disponível. */
+function prepararVR() {
+  try {
+    modoVR = new ModoVR(cenaDoJogo);
+  } catch (e) {
+    console.warn("VR indisponível:", e?.message);
+    return;
+  }
+  modoVR.aoMudar = (evento) => {
+    const lista = document.querySelector("#front-historia .front-list");
+    if (modoVR.suportado && lista && !document.getElementById("botaoVR")) {
+      const b = document.createElement("button");
+      b.id = "botaoVR";
+      b.innerHTML = "<span>VR</span>Entrar em realidade virtual <b>›</b>";
+      b.onclick = () =>
+        modoVR.ativo
+          ? modoVR.sair()
+          : modoVR.entrar(executarQuadro).catch((e) => mostrarAviso("VR: " + e.message, 4));
+      lista.appendChild(b);
+    }
+    const b = document.getElementById("botaoVR");
+    if (b) b.innerHTML = modoVR.ativo ? "<span>VR</span>Sair da realidade virtual <b>›</b>" : "<span>VR</span>Entrar em realidade virtual <b>›</b>";
+    if (evento === "fim") requestAnimationFrame(executarQuadro);
+  };
+}
+
 inicializarJogo();
