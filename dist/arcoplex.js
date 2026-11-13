@@ -1,5 +1,6 @@
 import { povoarCenario } from "./figurantes.js";
 import { animacaoDeMalha } from "./animacao-modelos.js";
+import { animarLego } from "./lego-animacao.js";
 import { criarCapituloFinal, desenharCapituloFinal } from "./capitulo-final.js";
 import { ETAPAS_FINAL } from "./regras-final.js";
 import * as T from "./vendor/three.module.js";
@@ -597,7 +598,10 @@ export async function criarArcoplex(lua) {
   };
   mercado.figurantes = povoarCenario(mercado.scene, "mercado");
   mercado.animarClay = animacaoDeMalha(mercado.clay);
-  mercado.animarJoker = animacaoDeMalha(mercado.joker);
+  // Coringa Lego: modelo intacto, articulado nas juntas de minifig. Ri a cada ~8 s.
+  const animarCoringa = animarLego(mercado.joker);
+  mercado.animarJoker = (t, movimento = 0) =>
+    animarCoringa(t, Math.min(1, movimento > 0.6 ? movimento : 0), Math.pow(Math.max(0, Math.sin(t * 0.8)), 8));
   capitulo.final = await criarCapituloFinal(capitulo);
   return capitulo;
 }
