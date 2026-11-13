@@ -2,6 +2,8 @@ import { NATAL_ATIVO, criarToucaNatal } from "./natal.js";
 // Módulo do jogo. Consulte GUIA-DE-EDICAO.md antes de alterar estruturas.
 import { NOMES } from "./configuracao.js";
 import * as T from "./vendor/three.module.js";
+import { materialPele } from "./pele.js";
+import { criarCabecaRealista } from "./cabeca-realista.js";
 import {
   criarMalha,
   criarCaixa,
@@ -115,7 +117,7 @@ export function criarMaicon() {
     }),
     shirt = obterMaterial("#111215", 0.96),
     pants = obterMaterial("#24272d", 0.88),
-    skin = obterMaterial("#bd805c", 0.88),
+    skin = materialPele("#bd805c"),
     hair = obterMaterial("#583826", 0.95),
     highlights = obterMaterial("#8e6043", 0.94),
     silver = obterMaterial("#a1a6aa", 0.3, 0.8),
@@ -195,119 +197,34 @@ export function criarMaicon() {
   const head = new T.Group();
   head.position.set(0, 1.83, 0);
   g.add(head);
-  criarCilindro(head, 0.062, 0.069, 0.12, skin, [0, -0.12, 0]);
-  criarElipsoide(head, [0.126, 0.18, 0.115], skin, [0, 0.035, 0]);
-  criarElipsoide(head, [0.098, 0.066, 0.09], skin, [0, -0.087, 0.025]);
-  // A textura do rosto vem da ficha fornecida e acompanha uma malha curva 3D.
-  const faceTexture = new T.TextureLoader().load("assets/maicon-reference.png");
-  faceTexture.colorSpace = T.SRGBColorSpace;
-  faceTexture.repeat.set(140 / 1536, 160 / 1024);
-  faceTexture.offset.set(1144 / 1536, 1 - 220 / 1024);
-  faceTexture.magFilter = T.NearestFilter;
-  const vertices = [],
-    uv = [],
-    ids = [],
-    cols = 24,
-    rows = 24;
-  for (let y = 0; y <= rows; y++)
-    for (let x = 0; x <= cols; x++) {
-      const nx = (x / cols) * 2 - 1,
-        ny = (y / rows) * 2 - 1;
-      vertices.push(
-        nx * 0.116 * Math.sqrt(1 - ny * ny * 0.72),
-        ny * 0.144 + 0.018,
-        0.079 + Math.sqrt(Math.max(0, 1 - nx * nx)) * 0.051,
-      );
-      uv.push(x / cols, y / rows);
-    }
-  for (let y = 0; y < rows; y++)
-    for (let x = 0; x < cols; x++) {
-      const a = y * (cols + 1) + x,
-        b = a + cols + 1;
-      ids.push(a, a + 1, b, b, a + 1, b + 1);
-    }
-  const faceGeometry = new T.BufferGeometry();
-  faceGeometry.setAttribute(
-    "position",
-    new T.Float32BufferAttribute(vertices, 3),
-  );
-  faceGeometry.setAttribute("uv", new T.Float32BufferAttribute(uv, 2));
-  faceGeometry.setIndex(ids);
-  faceGeometry.computeVertexNormals();
-  criarMalha(
-    head,
-    faceGeometry,
-    new T.MeshStandardMaterial({
-      map: faceTexture,
-      roughness: 0.94,
-    }),
-  );
-  const glasses = obterMaterial("#080b0e", 0.12, 0.15);
+  // Cabeça esculpida (cabeca-realista.js): rosto 3D com poros, olhos verdes, cavanhaque e cabelo
+  // castanho ondulado até os ombros, como na ficha do Maicon. Substitui a foto pixelada.
+  const cabecaReal = criarCabecaRealista({
+    pele: "#c48a66",
+    olhos: "#3f7a3a",
+    cabelo: { cor: "#5a3a24", reflexo: "#a87a52", estilo: "longo" },
+    barba: "#4a3424",
+    sobrancelha: "#3b2617",
+    altura: 0.33,
+    nariz: 1.1,
+    semente: 3,
+  });
+  cabecaReal.grupo.position.set(0, 0.02, 0.01);
+  head.add(cabecaReal.grupo);
+  head.userData.piscar = cabecaReal.piscar;
+  // Óculos escuros de armação fina (lentes espelhadas).
+  const glasses = new T.MeshPhysicalMaterial({ color: "#05070a", roughness: 0.05, metalness: 0.6, clearcoat: 1 });
+  const ez = cabecaReal.escala.z * 0.98 + 0.012,
+    ey = 0.02 + cabecaReal.escala.y * 0.12;
   for (const side of [-1, 1]) {
-    criarCaixa(
-      head,
-      [0.106, 0.053, 0.024],
-      glasses,
-      [side * 0.062, 0.054, 0.15],
-      [0, side * 0.1, -side * 0.025],
-    );
-    criarCaixa(head, [0.015, 0.015, 0.12], glasses, [
-      side * 0.119,
-      0.062,
-      0.078,
-    ]);
-    criarElipsoide(head, [0.024, 0.045, 0.021], skin, [
-      side * 0.127,
-      0.015,
-      -0.005,
-    ]);
+    const ex = cabecaReal.escala.x;
+    const lente = new T.Mesh(new T.BoxGeometry(ex * 0.5, ex * 0.27, 0.005), glasses);
+    lente.position.set(side * ex * 0.36, ey, ez);
+    lente.rotation.set(0, side * 0.12, side * 0.05);
+    head.add(lente);
+    criarCaixa(head, [0.006, 0.006, cabecaReal.escala.z * 0.95], silver, [side * ex * 0.66, ey + 0.01, ez - cabecaReal.escala.z * 0.47]);
   }
-  criarCaixa(head, [0.028, 0.01, 0.016], silver, [0, 0.057, 0.164]);
-  // Cabelo em camadas sobrepostas, com volume na lateral e nas costas.
-  criarElipsoide(head, [0.145, 0.14, 0.13], hair, [0, 0.133, -0.018]);
-  for (let layer = 0; layer < 3; layer++)
-    for (let i = 0; i < 11; i++) {
-      const a = (i / 10) * Math.PI * 1.6 + 0.55,
-        side = Math.sin(a),
-        back = Math.cos(a),
-        x = side * (0.09 + layer * 0.014),
-        z = back * 0.09;
-      const points = [
-        [x * 0.5, 0.2 + layer * 0.018, z],
-        [x * 1.1, 0.19, z - 0.025],
-        [x * 1.5, 0.08, z - 0.075],
-        [x * 1.42, -0.03 - layer * 0.017, z - 0.11],
-        [x * 1.1, -0.14 - layer * 0.017, z - 0.1],
-      ];
-      criarTubo(
-        head,
-        points,
-        0.017 + (layer === 0 ? 0.009 : 0),
-        i % 3 === 0 ? highlights : hair,
-      );
-    }
-  for (let i = 0; i < 7; i++)
-    criarTubo(
-      head,
-      [
-        [-0.13 + i * 0.025, 0.17, 0.07],
-        [-0.1 + i * 0.024, 0.22, 0.13],
-        [-0.02 + i * 0.018, 0.19, 0.145],
-        [0.06 + i * 0.012, 0.13, 0.12],
-      ],
-      0.017,
-      i % 2 ? hair : highlights,
-    );
-  // Barba curta com fios claros e bigode, além da textura da referência.
-  for (let i = 0; i < 24; i++) {
-    const a = (i / 23) * Math.PI;
-    criarElipsoide(
-      head,
-      [0.006, 0.009, 0.005],
-      i % 3 === 0 ? obterMaterial("#b4a18e", 1) : hair,
-      [Math.cos(a) * 0.085, -0.07 - Math.sin(a) * 0.035, 0.114],
-    );
-  }
+  criarCaixa(head, [cabecaReal.escala.x * 0.2, 0.005, 0.006], silver, [0, ey + 0.012, ez + 0.002]);
   const chain = [];
   for (let i = 0; i <= 20; i++) {
     const a = (i / 20) * Math.PI;
@@ -360,9 +277,10 @@ export function criarMaicon() {
       0.075,
     ]);
   if (NATAL_ATIVO()) {
-    const touca = criarToucaNatal(0.15);
-    touca.position.set(0, 0.17, -0.02);
-    touca.rotation.set(-0.2, 0, 0.05);
+    const e = cabecaReal.escala;
+    const touca = criarToucaNatal(e.x * 1.12);
+    touca.position.set(0, 0.02 + e.y * 0.7, -e.z * 0.1);
+    touca.rotation.set(-0.25, 0, 0.05);
     head.add(touca);
   }
   let rope;
@@ -382,6 +300,7 @@ export function criarMaicon() {
       arms[1].rotation.x = Math.sin(t * 10) * Math.min(speed * 0.07, 0.35);
       arms[0].rotation.x = whipping ? -1.3 + Math.sin(t * 18) * 0.5 : -0.25;
       head.rotation.y = Math.sin(t * 0.8) * 0.025;
+      head.userData.piscar?.(t);
       head.rotation.x = Math.sin(t * 1.8) * 0.016;
       head.position.y = 1.83 + Math.sin(t * 2.2) * 0.003;
       if (rope) {
@@ -411,7 +330,7 @@ function criarPessoa({ teacher = false } = {}) {
   const cloth = obterMaterial(teacher ? "#3e4a50" : "#141619", 0.9, 0, {
       side: T.DoubleSide,
     }),
-    skin = obterMaterial(teacher ? "#bd8e6b" : "#c99a78", 0.9),
+    skin = materialPele(teacher ? "#bd8e6b" : "#c99a78"),
     hair = obterMaterial(teacher ? "#4b4037" : "#211c1c", 0.95),
     pants = obterMaterial("#202936", 0.95),
     shoes = obterMaterial("#11161a", 0.6);

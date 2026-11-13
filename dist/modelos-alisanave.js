@@ -1,5 +1,6 @@
 // Personagens desta fase: malhas, articulações e detalhes editáveis em metros.
 import * as T from "./vendor/three.module.js";
+import { materialPele } from "./pele.js";
 import { criarHumano } from "./humanos.js";
 import {
   criarCaixa,
@@ -61,7 +62,7 @@ export function criarCharlieDetalhado() {
   });
   h.head.clear(); // Substitui a cabeça básica inteira; os óculos deixam de ser blocos opacos.
   h.head.scale.setScalar(1.17);
-  const pele = obterMaterial("#c69a7d", 0.8),
+  const pele = materialPele("#c69a7d"),
     cabelo = obterMaterial("#b5afa1", 0.86),
     luzCabelo = obterMaterial("#ded5c4", 0.88);
   criarCilindro(h.head, 0.053, 0.064, 0.14, pele, [0, -0.15, 0]);
@@ -277,7 +278,7 @@ export function criarSQLmanDetalhado() {
 
 export function criarCabecaYang() {
   const g = new T.Group(),
-    pele = obterMaterial("#b18d73", 0.76);
+    pele = materialPele("#b18d73");
   criarElipsoide(g, [0.145, 0.19, 0.125], pele, [0, 0, 0]);
   rostoReferencia(
     g,

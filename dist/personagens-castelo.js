@@ -1,4 +1,5 @@
 import * as T from "./vendor/three.module.js";
+import { materialPele } from "./pele.js";
 import { FBXLoader } from "./vendor/FBXLoader.js";
 import { criarHumano } from "./humanos.js";
 import { rostoReferencia } from "./modelos-alisanave.js";
@@ -22,7 +23,7 @@ export function criarVisitante({
 }) {
   const h = criarHumano({ pele, cabelo, camisa });
   h.head.clear();
-  const material = obterMaterial(pele, 0.82),
+  const material = materialPele(pele),
     capilar = obterMaterial(cabelo, 0.95);
   criarCilindro(h.head, 0.055, 0.061, 0.15, material, [0, -0.15, 0]);
   criarElipsoide(h.head, [0.115, 0.151, 0.103], material, [0, 0, -0.01]);
@@ -146,7 +147,7 @@ export function criarLittleTail() {
     cabelo: "#262522",
   });
   const vermelho = obterMaterial("#bc1e2c", 0.86),
-    pele = obterMaterial("#c4a28b", 0.85),
+    pele = materialPele("#c4a28b"),
     branco = obterMaterial("#e4e0d7", 0.8);
   // Mangas removidas e braços de pele: regata e bermuda, como o uniforme fornecido.
   h.arms.forEach((a) =>
@@ -298,7 +299,7 @@ export function criarGabrielBreier() {
     0.011,
     obterMaterial("#c69a78", 0.8),
   );
-  const pele = obterMaterial("#c69a78", 0.8),
+  const pele = materialPele("#c69a78"),
     preto = obterMaterial("#181b20", 0.88);
   h.legs.forEach((l) =>
     l.traverse((o) => {

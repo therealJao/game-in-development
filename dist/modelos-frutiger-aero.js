@@ -1,4 +1,5 @@
 import * as T from "./vendor/three.module.js";
+import { materialPele } from "./pele.js";
 import {
   criarCaixa,
   criarCilindro,
@@ -17,7 +18,7 @@ export function criarNaverdachi() {
     cabelo: "#29201a",
     camisa: "#f1f5f5",
   });
-  const pele = obterMaterial("#aa704e", 0.78),
+  const pele = materialPele("#aa704e"),
     preto = obterMaterial("#151e27", 0.8),
     branco = obterMaterial("#f3f8fb", 0.65);
   h.cotovelos.forEach((c) =>

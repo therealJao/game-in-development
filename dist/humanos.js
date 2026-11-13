@@ -1,6 +1,7 @@
 import { NATAL_ATIVO, criarToucaNatal } from "./natal.js";
 // Corpos humanos articulados: ombro, cotovelo, quadril e joelho.
 import * as T from "./vendor/three.module.js";
+import { materialPele } from "./pele.js";
 import {
   criarCaixa,
   criarElipsoide,
@@ -18,7 +19,7 @@ export function criarHumano({
 } = {}) {
   const group = new T.Group();
   const roupa = obterMaterial(camisa, 0.9),
-    tomPele = obterMaterial(pele, 0.85),
+    tomPele = materialPele(pele),
     calca = obterMaterial("#232b35", 0.95);
   const body = new T.Group();
   group.add(body);
