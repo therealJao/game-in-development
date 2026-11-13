@@ -23,9 +23,14 @@ export function criarHumano({
     calca = obterMaterial("#232b35", 0.95);
   const body = new T.Group();
   group.add(body);
-  criarElipsoide(body, [0.235, 0.31, 0.13], roupa, [0, 1.29, 0]);
-  criarElipsoide(body, [0.18, 0.18, 0.12], roupa, [0, 1.04, 0]);
-  criarElipsoide(body, [0.18, 0.1, 0.13], calca, [0, 0.92, 0]);
+  criarElipsoide(body, [0.195, 0.27, 0.12], roupa, [0, 1.3, 0]);
+  // Gola da camisa em volta do pescoço.
+  const gola = new T.Mesh(new T.TorusGeometry(0.068, 0.018, 10, 28), roupa);
+  gola.rotation.x = Math.PI / 2;
+  gola.position.set(0, 1.565, 0.0);
+  body.add(gola);
+  criarElipsoide(body, [0.158, 0.17, 0.108], roupa, [0, 1.05, 0]);
+  criarElipsoide(body, [0.165, 0.1, 0.115], calca, [0, 0.92, 0]);
   const head = new T.Group();
   head.position.set(0, 1.73, 0);
   body.add(head);
@@ -85,10 +90,10 @@ export function criarHumano({
     joelhos = [];
   for (const lado of [-1, 1]) {
     const ombro = new T.Group();
-    ombro.position.set(lado * 0.245, 1.48, 0);
+    ombro.position.set(lado * 0.212, 1.48, 0);
     body.add(ombro);
     arms.push(ombro);
-    criarElipsoide(ombro, [0.092, 0.12, 0.095], roupa, [0, -0.04, 0]);
+    criarElipsoide(ombro, [0.07, 0.078, 0.072], roupa, [0, -0.04, 0]);
     criarCilindro(ombro, 0.067, 0.059, 0.26, roupa, [0, -0.17, 0]);
     const cotovelo = new T.Group();
     cotovelo.position.y = -0.3;

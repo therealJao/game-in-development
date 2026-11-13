@@ -32,7 +32,7 @@ export async function criarPraiaVolei() {
   sol.shadow.normalBias = 0.03;
   scene.add(sol);
   const ceu = criarCeu(scene);
-  const areia = obterMaterial("#eee0b2", 0.95),
+  const areia = obterMaterial("#dcc08a", 0.95),
     branco = obterMaterial("#f8ffff", 0.35),
     azul = obterMaterial("#43cde1", 0.2, 0.1),
     madeira = obterMaterial("#b6a482", 0.8);
@@ -258,7 +258,7 @@ export function desenharPraiaVolei(view, c, f) {
     v = f.volei,
     intro = f.etapa === "praiaChegada";
   c.agua.material.uniforms.tempo.value = t;
-  c.bolhas.forEach((b, i) => (b.position.y = 1 + ((i * 0.7 + t * 0.22) % 7)));
+  c.bolhas.forEach((b) => (b.visible = false));
   const lista = [
     [c.axel, v.axel, -1.5],
     [c.nav, v.nav, 1.5],
@@ -314,10 +314,12 @@ export function desenharPraiaVolei(view, c, f) {
     camera.position.set(-16 + a * 11, 7 - a * 2, 24 - a * 9);
     camera.lookAt(-1, 1, -1);
   } else {
-    camera.position.set(2.5, 7, 22.5);
-    camera.lookAt(0, 1.8, 0);
+    // Câmera de transmissão: mais perto, baixa e acompanhando a bola suavemente.
+    c.camX = T.MathUtils.lerp(c.camX ?? 0, T.MathUtils.clamp(v.bola.x * 0.45, -4.5, 4.5), 0.06);
+    camera.position.set(c.camX, 3.4, 12.5);
+    camera.lookAt(c.camX * 0.9, 1.25, -0.5);
   }
-  camera.fov = 48;
+  camera.fov = intro ? 48 : 44;
   camera.near = 0.1;
   camera.far = 700;
   camera.updateProjectionMatrix();

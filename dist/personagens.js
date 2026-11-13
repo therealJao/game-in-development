@@ -85,7 +85,7 @@ function criarBraco(parent, side, cloth, skin) {
   const shoulder = new T.Group();
   shoulder.position.set(side * 0.265, 1.54, 0);
   parent.add(shoulder);
-  criarElipsoide(shoulder, [0.105, 0.12, 0.105], cloth, [0, -0.03, 0]);
+  criarElipsoide(shoulder, [0.072, 0.08, 0.078], cloth, [-0.01 * side, -0.05, 0]);
   criarRoupa(
     shoulder,
     [
@@ -443,9 +443,10 @@ function criarPessoa({ teacher = false } = {}) {
       cloth,
     );
   if (NATAL_ATIVO()) {
-    // Brita usa capuz: a touca vai por cima dele.
-    const touca = criarToucaNatal(cabecaReal.escala.x * (teacher ? 1.12 : 1.45));
-    touca.position.set(0, cabecaReal.escala.y * (teacher ? 0.7 : 1.02), -cabecaReal.escala.z * 0.12);
+    // No Natal a touca substitui o capuz da Brita.
+    if (!teacher) hood.clear();
+    const touca = criarToucaNatal(cabecaReal.escala.x * 1.12);
+    touca.position.set(0, cabecaReal.escala.y * 0.72, -cabecaReal.escala.z * 0.1);
     touca.rotation.set(-0.18, 0, -0.06);
     head.add(touca);
   }

@@ -1,5 +1,7 @@
 import * as T from "./vendor/three.module.js";
 import { materialPele } from "./pele.js";
+import { criarCabecaRealista } from "./cabeca-realista.js";
+import { NATAL_ATIVO, criarToucaNatal } from "./natal.js";
 import { FBXLoader } from "./vendor/FBXLoader.js";
 import { criarHumano } from "./humanos.js";
 import { rostoReferencia } from "./modelos-alisanave.js";
@@ -23,30 +25,24 @@ export function criarVisitante({
 }) {
   const h = criarHumano({ pele, cabelo, camisa });
   h.head.clear();
-  const material = materialPele(pele),
-    capilar = obterMaterial(cabelo, 0.95);
-  criarCilindro(h.head, 0.055, 0.061, 0.15, material, [0, -0.15, 0]);
-  criarElipsoide(h.head, [0.115, 0.151, 0.103], material, [0, 0, -0.01]);
-  criarElipsoide(h.head, [0.091, 0.058, 0.087], material, [0, -0.105, 0.005]);
-  rostoReferencia(h.head, arquivo, recorte, 0.11, 0.145);
-  criarElipsoide(h.head, [0.115, 0.063, 0.108], capilar, [0, 0.125, -0.02]);
-  for (const lado of [-1, 1])
-    criarElipsoide(h.head, [0.021, 0.038, 0.021], material, [
-      lado * 0.115,
-      -0.013,
-      0,
-    ]);
-  for (let i = 0; i < 14; i++)
-    criarTubo(
-      h.head,
-      [
-        [(i - 7) * 0.015, 0.13, 0.065],
-        [(i - 7) * 0.015 + 0.025, 0.175, 0],
-        [(i - 7) * 0.014 + 0.03, 0.13, -0.085],
-      ],
-      0.006,
-      capilar,
-    );
+  // Rosto humano escaneado (no lugar da foto colada), com tom de pele e cabelo de cada personagem.
+  let semente = 0;
+  for (const ch of String(arquivo)) semente = (semente * 31 + ch.charCodeAt(0)) % 997;
+  const cabeca = criarCabecaRealista({
+    pele,
+    olhos: "#2b1d14",
+    cabelo: { cor: cabelo, reflexo: "#" + new T.Color(cabelo).lerp(new T.Color("#ffffff"), 0.25).getHexString(), estilo: "curto" },
+    altura: 0.26,
+    semente,
+  });
+  cabeca.grupo.position.y = 0.01;
+  h.head.add(cabeca.grupo);
+  if (NATAL_ATIVO()) {
+    const touca = criarToucaNatal(cabeca.escala.x * 1.12);
+    touca.position.set(0, cabeca.escala.y * 0.72, -cabeca.escala.z * 0.1);
+    touca.rotation.set(-0.22, 0, 0.06);
+    h.head.add(touca);
+  }
   if (barba)
     for (let i = 0; i < 17; i++) {
       const a = (i / 16) * Math.PI;
@@ -61,7 +57,6 @@ export function criarVisitante({
         ],
       );
     }
-  h.head.scale.setScalar(1.12);
   return h;
 }
 export function criarDavyJones() {

@@ -30,7 +30,7 @@ export function criarNaverdachi() {
     l.traverse((o) => {
       if (o.isMesh) o.material = pele;
     });
-    criarCaixa(l, [0.19, 0.32, 0.23], preto, [0, -0.12, 0]);
+    criarCilindro(l, 0.1, 0.115, 0.3, preto, [0, -0.11, 0]);
     criarCilindro(h.joelhos[i], 0.073, 0.07, 0.24, branco, [0, -0.2, 0]);
     criarElipsoide(h.joelhos[i], [0.08, 0.07, 0.15], branco, [0, -0.43, 0.07]);
   });
