@@ -303,7 +303,7 @@ class CenaDoJogo {
     this.materiaisRealistas.preparar(this.dungeon.scene, false, true);
     this.materiaisRealistas.preparar(this.alisanave.voo, true);
     this.materiaisRealistas.preparar(this.alisanave.porto, false);
-    decorarExteriorNatal(this.alisanave.porto, { area: 46 });
+    decorarExteriorNatal(this.alisanave.porto, { area: 46, cobrir: false });
     decorarExteriorNatal(this.menuScene.cidade.scene, { area: 60 });
     this.materiaisRealistas.preparar(this.alisanave.sala);
     const held = this.controller.clone(true);

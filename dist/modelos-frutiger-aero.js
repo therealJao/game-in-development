@@ -17,6 +17,9 @@ export function criarNaverdachi() {
     pele: "#aa704e",
     cabelo: "#29201a",
     camisa: "#f1f5f5",
+    corCalca: "#151e27",
+    mangaLonga: false,
+    bermuda: true,
   });
   const pele = materialPele("#aa704e"),
     preto = obterMaterial("#151e27", 0.8),
@@ -34,7 +37,7 @@ export function criarNaverdachi() {
     criarCilindro(h.joelhos[i], 0.073, 0.07, 0.24, branco, [0, -0.2, 0]);
     criarElipsoide(h.joelhos[i], [0.08, 0.07, 0.15], branco, [0, -0.43, 0.07]);
   });
-  criarCaixa(
+  const cracha = criarCaixa(
     h.body,
     [0.18, 0.12, 0.018],
     new T.MeshStandardMaterial({
@@ -55,12 +58,17 @@ export function criarNaverdachi() {
     );
   const logo = new T.TextureLoader().load("assets/corinthians-ceu.png");
   logo.colorSpace = T.SRGBColorSpace;
-  criarCaixa(
+  const escudo = criarCaixa(
     h.body,
     [0.08, 0.1, 0.012],
     new T.MeshStandardMaterial({ map: logo, roughness: 0.7 }),
     [-0.11, 1.45, 0.137],
   );
+  // Crachá e escudo continuam no peito do corpo anatômico.
+  for (const o of [cracha, escudo]) {
+    o.userData.manterVisivel = true;
+    o.position.z -= 0.015;
+  }
   h.group.name = "Neymar_Naverdachi_referencia";
   h.group.scale.setScalar(1.05);
   return h;

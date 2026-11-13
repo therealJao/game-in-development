@@ -21,8 +21,11 @@ export function criarCeuDourado(cena) {
     float fb(vec2 p){return .54*n(p)+.27*n(p*2.03)+.13*n(p*4.09)+.06*n(p*8.1);}
     void main(){vec3 d=normalize(direcao);float y=max(d.y,0.);vec2 p=d.xz/(.45+y)*2.5+vec2(tempo*.005,0.);
     float nuvem=fb(p),recorte=smoothstep(.38,.72,nuvem);float sol=pow(max(dot(d,normalize(vec3(-.4,.22,.6))),0.),18.);
-    vec3 dourado=mix(vec3(1.,.48,.045),vec3(.24,.105,.025),pow(y,.6));
-    dourado=mix(dourado,vec3(.10,.055,.025),recorte*.88*smoothstep(.015,.22,y));dourado+=vec3(1.,.61,.14)*(sol*.85+pow(1.-abs(nuvem-.48)*2.,12.)*.5);
+    // Pôr do sol: horizonte pêssego/laranja, alto do céu azul, nuvens rosadas iluminadas por baixo.
+    vec3 dourado=mix(vec3(1.0,.62,.32),vec3(.22,.42,.72),smoothstep(.0,.55,y));
+    dourado=mix(dourado,vec3(1.0,.80,.55),smoothstep(.12,.0,y)*.6);
+    vec3 nuvemCor=mix(vec3(1.0,.58,.45),vec3(.92,.86,.95),smoothstep(.05,.45,y));
+    dourado=mix(dourado,nuvemCor,recorte*.7*smoothstep(.02,.2,y));dourado+=vec3(1.,.7,.35)*(sol*.9+pow(1.-abs(nuvem-.48)*2.,12.)*.25);
     vec3 claro=mix(vec3(.64,.88,1.),vec3(.025,.34,.86),pow(y,.6));claro=mix(claro,vec3(1.),recorte*.75);
     gl_FragColor=vec4(mix(dourado,claro,dia),1.);
     #include <tonemapping_fragment>

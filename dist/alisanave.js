@@ -2,6 +2,7 @@ import { criarFortalezaColina, criarCeuDourado } from "./paisagem-castelo.js";
 // FASE ALISANAVE — modelos e cenas em tempo real, sem sequência de imagens.
 import * as T from "./vendor/three.module.js";
 import { criarBalsa } from "./balsa.js";
+import { criarPaisagemZelda } from "./paisagem-zelda.js";
 import {
   criarCaixa,
   criarCilindro,
@@ -659,8 +660,12 @@ export function criarCenasAlisanave() {
   }
   porto.add(barco);
   barco.position.set(141, 0.1, 126);
-  const paisagemCastelo = criarFortalezaColina();
+  // Natal 2026: o morro em cone virou uma paisagem de aventura (colinas, floresta, névoa, cordilheira).
+  const paisagemCastelo = criarFortalezaColina({ montanha: false });
   const castelo = paisagemCastelo.grupo;
+  castelo.children[0].position.y = 37; // a fortaleza fica no platô
+  const paisagemAventura = criarPaisagemZelda({ alturaPlato: 37 });
+  castelo.add(paisagemAventura);
   castelo.position.set(141, 0, 430);
   porto.add(castelo);
   const ceuCastelo = criarCeuDourado(porto);
@@ -1019,9 +1024,9 @@ export function desenharAlisanave(view, estado, tempo) {
     c.passageiro.group.rotation.y = 0;
     cam.position.set(150, 13.5, z - 42);
     cam.lookAt(141, 17 + progresso * 6, z + 80);
-    c.referenciasCeu.visible = true;
-    c.referenciasCeu.position.set(141, 0, z + 185);
-    c.referenciasCeu.children.forEach((o) => o.lookAt(cam.position));
+    // Sem escudos de times no céu.
+    c.referenciasCeu.visible = false;
+    c.castelo.traverse((o) => o.userData.animar?.(t, cam));
   } else {
     c.referenciasCeu.visible = false;
     c.passageiro.group.visible = false;

@@ -108,3 +108,7 @@ Braços: modelo cartoon-fps-arms fornecido pelo usuário, com pose e material ad
 ## Natal 2026 — rostos realistas
 
 Rosto humano escaneado: "Lee Perry-Smith head" por Infinite-Realities, licença Creative Commons Atribuição 3.0 (https://creativecommons.org/licenses/by/3.0/), obtido dos exemplos do three.js (dist/assets/cabeca/). Adaptações: olhos abertos por recorte no shader, globos oculares, corte do busto, ajuste de tom de pele, cabelo e acessórios gerados no jogo.
+
+## Corpos humanos anatômicos
+
+Malha base hm08, esqueleto "default" (163 ossos), pesos e olhos high-poly do MakeHuman — liberados em CC0 1.0 (domínio público) pela Data Collection AB / MakeHuman Community (https://github.com/makehumancommunity/makehuman). Formas (musculatura atlética, proporções ideais, variações) geradas a partir dos targets CC0 do MakeHuman por script do projeto. Roupas, encaixe dos rostos, animação e paisagem de aventura: código do projeto.

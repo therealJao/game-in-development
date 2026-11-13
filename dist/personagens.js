@@ -4,6 +4,7 @@ import { NOMES } from "./configuracao.js";
 import * as T from "./vendor/three.module.js";
 import { materialPele } from "./pele.js";
 import { criarCabecaRealista } from "./cabeca-realista.js";
+import { aplicarCorpoRealista } from "./corpo-realista.js";
 import {
   criarMalha,
   criarCaixa,
@@ -285,6 +286,11 @@ export function criarMaicon() {
     head.add(touca);
   }
   let rope;
+  // Corpo humano anatômico (MakeHuman CC0) no lugar das formas arredondadas.
+  aplicarCorpoRealista({ group: g, head, arms, legs }, {
+    pele: "#c48a66", camisa: "#141518", calca: "#1d2024", sapato: "#0d0d0f", altura: 1.85,
+    manter: [cable, potentiometer],
+  });
   return {
     group: g,
     head,
@@ -451,6 +457,9 @@ function criarPessoa({ teacher = false } = {}) {
     head.add(touca);
   }
   if (!teacher) g.scale.setScalar(0.87);
+  aplicarCorpoRealista({ group: g, head, arms, legs }, teacher
+    ? { pele: "#bd8e6b", camisa: "#3e4a50", calca: "#2a2f36", sapato: "#2a1d14", altura: 1.8 }
+    : { pele: "#c99a78", camisa: "#16171a", calca: "#27324a", sapato: "#e8e8e8", altura: 1.74, variante: "magro" });
   return {
     group: g,
     head,

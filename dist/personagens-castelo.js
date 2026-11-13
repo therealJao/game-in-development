@@ -1,6 +1,7 @@
 import * as T from "./vendor/three.module.js";
 import { materialPele } from "./pele.js";
 import { criarCabecaRealista } from "./cabeca-realista.js";
+import { aplicarCorpoRealista } from "./corpo-realista.js";
 import { NATAL_ATIVO, criarToucaNatal } from "./natal.js";
 import { FBXLoader } from "./vendor/FBXLoader.js";
 import { criarHumano } from "./humanos.js";
@@ -22,6 +23,10 @@ export function criarVisitante({
   cabelo = "#27221f",
   camisa = "#20252d",
   barba = false,
+  corCalca = "#232b35",
+  mangaLonga = true,
+  bermuda = false,
+  manter = null,
 }) {
   const h = criarHumano({ pele, cabelo, camisa });
   h.head.clear();
@@ -57,6 +62,17 @@ export function criarVisitante({
         ],
       );
     }
+  const escura = new T.Color(pele).getHSL({}).l < 0.42;
+  aplicarCorpoRealista(h, {
+    pele,
+    camisa,
+    calca: corCalca,
+    variante: escura ? "africano" : "masculino",
+    altura: 1.78,
+    mangaLonga,
+    bermuda,
+    manter: manter || [],
+  });
   return h;
 }
 export function criarDavyJones() {
