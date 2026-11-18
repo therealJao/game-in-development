@@ -155,10 +155,10 @@ P('<image href="eye.svg" x="40" y="-200" width="1040" height="1040" opacity="0.9
 # título
 for i in range(8):
     x=560-320+i*90+random.uniform(-20,20); w=random.uniform(4,9); ln=random.uniform(20,60)
+    if i == 5: continue
     P(f'<path d="M {x-w:.1f} 872 C {x-w:.1f} {872+ln*0.6:.1f} {x-w*1.3:.1f} {872+ln:.1f} {x:.1f} {872+ln+w:.1f} C {x+w*1.3:.1f} {872+ln:.1f} {x+w:.1f} {872+ln*0.6:.1f} {x+w:.1f} 872 Z" fill="#8a0010"/>')
 P(f'<g filter="url(#textGlow)"><text x="560" y="880" text-anchor="middle" font-family="Creep" font-size="250" letter-spacing="8" fill="url(#txt)" stroke="#120002" stroke-width="8" paint-order="stroke">BLINDER</text></g>')
-P('<text x="560" y="985" text-anchor="middle" font-family="Elite" font-size="44" letter-spacing="10" fill="#e8dccb">ELE NÃO VÊ.  ELE <tspan fill="#ff3020">ESCUTA.</tspan></text>')
-P('<text x="560" y="1036" text-anchor="middle" font-family="Elite" font-size="24" letter-spacing="12" fill="#8a7a70">QUEBRE · ESCONDA-SE · FUJA</text>')
+P('<text x="560" y="1000" text-anchor="middle" font-family="Elite" font-size="44" letter-spacing="10" fill="#e8dccb">ELE NÃO VÊ.  ELE <tspan fill="#ff3020">ESCUTA.</tspan></text>')
 
 P(f'<rect width="{W}" height="{H}" fill="url(#vig)"/>')
 P(f'<rect width="{W}" height="{H}" filter="url(#grit)" opacity="0.14"/>')
