@@ -191,6 +191,15 @@ function VM.build(parent: Instance)
 	rig.left = buildHand(rig.list, model, "L", -1)
 	local roll = block(rig.list, model, "BandageRoll", Vector3.new(0.5, 0.42, 0.42), CFrame.new(0, 0.02, -0.12), Color3.fromRGB(238, 232, 218), Enum.Material.Fabric, "L", Enum.PartType.Cylinder)
 	rig.roll = roll
+	-- gotas pingando dos nós dos dedos quando as mãos estão destruídas
+	local pe = Instance.new("ParticleEmitter")
+	pe.Texture = "rbxasset://textures/particles/smoke_main.dds"
+	pe.Color = ColorSequence.new(Color3.fromRGB(120, 6, 10), Color3.fromRGB(70, 2, 6))
+	pe.Size = NumberSequence.new({ NumberSequenceKeypoint.new(0, 0.035), NumberSequenceKeypoint.new(0.2, 0.05), NumberSequenceKeypoint.new(1, 0.025) })
+	pe.Transparency = NumberSequence.new(0, 0.2)
+	pe.Lifetime = NumberRange.new(0.4, 0.7); pe.Rate = 0; pe.Speed = NumberRange.new(0, 0.2)
+	pe.Acceleration = Vector3.new(0, -30, 0); pe.LightInfluence = 1; pe.Parent = rig.right.blood[2]
+	rig.drip = pe
 	model.Parent = parent
 	return rig
 end
@@ -217,6 +226,7 @@ function VM.apply(rig, right: CFrame, left: CFrame?, leftVisible: boolean, hands
 	for _, d in ipairs(rig.right.dirt) do d.Transparency = 0.75 - hurt * 0.6 end
 	for _, w in ipairs(rig.right.wraps) do w.Transparency = (hands01 < 0.65) and 0 or 1 end
 	for _, b in ipairs(rig.right.blood) do b.Transparency = (hands01 < 0.3) and 0.05 or 1 end
+	if rig.drip then rig.drip.Rate = (hands01 <= 0) and 6 or ((hands01 < 0.3) and 1.5 or 0) end
 	if rig.right.watch then
 		-- relógio piscando 03:00
 		rig.right.watch.Transparency = (os.clock() % 1 < 0.5) and 0 or 0.4

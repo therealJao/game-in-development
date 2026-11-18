@@ -233,6 +233,63 @@ function Hud.init(player: Player?, parentOverride: Instance?)
 		end)
 	end
 
+	-- ===== sangue na tela (respingos nas bordas que escorrem e secam) =====
+	local bloodLayer = new("Frame", { Name = "BloodScreen", Size = UDim2.fromScale(1, 1), BackgroundTransparency = 1, ZIndex = 18, Parent = gui })
+	local function drop(x: number, y: number, sz: number, dark: boolean)
+		local col = dark and Color3.fromRGB(70, 2, 6) or Color3.fromRGB(125, 6, 12)
+		local d = new("Frame", { AnchorPoint = Vector2.new(0.5, 0.5), Position = UDim2.fromScale(x, y), Size = UDim2.fromOffset(sz, sz * (0.75 + math.random() * 0.5)), Rotation = math.random(0, 360), BackgroundColor3 = col, BackgroundTransparency = 0.12, BorderSizePixel = 0, ZIndex = 18, Parent = bloodLayer }, { K.corner(999),
+			new("UIGradient", { Rotation = math.random(0, 360), Color = ColorSequence.new(col:Lerp(Color3.new(0, 0, 0), 0.35), col), Transparency = NumberSequence.new({ NumberSequenceKeypoint.new(0, 0), NumberSequenceKeypoint.new(0.8, 0.1), NumberSequenceKeypoint.new(1, 0.6) }) }) })
+		-- brilho molhado
+		new("Frame", { AnchorPoint = Vector2.new(0.5, 0.5), Position = UDim2.fromScale(0.32, 0.3), Size = UDim2.fromScale(0.22, 0.14), BackgroundColor3 = Color3.new(1, 1, 1), BackgroundTransparency = 0.82, ZIndex = 18, Parent = d }, { K.corner(999) })
+		return d
+	end
+	function H.bloodScreen(intensity: number)
+		intensity = math.clamp(intensity or 1, 0.2, 1.5)
+		local items = {}
+		local n = math.floor(5 + intensity * 7)
+		for _ = 1, n do
+			-- perto das bordas, nunca no meio da mira
+			local edgeX = math.random() < 0.5
+			local x = edgeX and (math.random() < 0.5 and math.random() * 0.16 or 1 - math.random() * 0.16) or math.random()
+			local y = edgeX and math.random() or (math.random() < 0.5 and math.random() * 0.18 or 1 - math.random() * 0.18)
+			local big = drop(x, y, math.random(40, 120) * intensity, math.random() < 0.4)
+			table.insert(items, big)
+			for _ = 1, math.random(3, 7) do
+				local a = math.random() * math.pi * 2
+				local r = math.random(30, 110) / 1000
+				table.insert(items, drop(x + math.cos(a) * r, y + math.sin(a) * r * 1.6, math.random(6, 20), false))
+			end
+			-- escorrido
+			if math.random() < 0.6 then
+				local w = math.random(5, 12)
+				local drip = new("Frame", { AnchorPoint = Vector2.new(0.5, 0), Position = UDim2.fromScale(x, y), Size = UDim2.fromOffset(w, 0), BackgroundColor3 = Color3.fromRGB(105, 4, 10), BackgroundTransparency = 0.15, BorderSizePixel = 0, ZIndex = 18, Parent = bloodLayer }, { K.corner(w) })
+				K.tween(drip, 2.5 + math.random() * 2, { Size = UDim2.fromOffset(w, math.random(80, 260)) }, Enum.EasingStyle.Quad, Enum.EasingDirection.In)
+				table.insert(items, drip)
+			end
+		end
+		-- seca e some aos poucos
+		task.delay(3.5, function()
+			for _, it in ipairs(items) do
+				if it.Parent then
+					K.tween(it, 2.5, { BackgroundTransparency = 1, BackgroundColor3 = Color3.fromRGB(45, 10, 10) })
+					for _, c in ipairs(it:GetChildren()) do if c:IsA("Frame") then K.tween(c, 2, { BackgroundTransparency = 1 }) end end
+				end
+			end
+			task.wait(2.6)
+			for _, it in ipairs(items) do if it.Parent then it:Destroy() end end
+		end)
+	end
+	-- ferido: bordas vermelhas pulsando com o coração
+	local wound = new("Frame", { Name = "Wound", Size = UDim2.fromScale(1, 1), BackgroundTransparency = 1, Visible = false, ZIndex = 3, Parent = gui })
+	edges(wound, Color3.fromRGB(120, 0, 6), 0.16)
+	function H.setWounded(on: boolean, t: number)
+		wound.Visible = on
+		if on then
+			local beat = math.max(0, math.sin(t * 5.5)) ^ 4
+			for _, e in ipairs(wound:GetChildren()) do (e :: Frame).BackgroundTransparency = 0.55 - beat * 0.35 end
+		end
+	end
+
 	function H.flash(color: Color3, from: number, dur: number)
 		H.flashFrame.BackgroundColor3 = color; H.flashFrame.BackgroundTransparency = from
 		K.tween(H.flashFrame, dur, { BackgroundTransparency = 1 }, Enum.EasingStyle.Quad)

@@ -822,7 +822,7 @@ function B.BuildMap(themeId: string)
 					B.Chair(F.Breakables, cf * CFrame.new(s * 2.5, 0, 3.6) * CFrame.Angles(0, math.pi, 0))
 				end
 				if rnd:NextNumber() < 0.6 then B.Plush(F.Breakables, cf * CFrame.new(rnd:NextNumber(-3, 3), 3.1, 0)) end
-				if rnd:NextNumber() < 0.3 then decal(F.Props, cf * CFrame.new(0, 3.12, 0.5), Vector3.new(1.6, 0.02, 2.2), Color3.fromRGB(80, 6, 8)) end
+				if rnd:NextNumber() < 0.2 then B.BloodSplat(F.Props, cf * CFrame.new(0, 3.06, 0.5), 0.35) end
 			end
 			-- desenhos de criança na parede
 			for _ = 1, 3 do
@@ -973,8 +973,26 @@ function B.BuildMap(themeId: string)
 		for _ = 1, math.floor(r.w * r.h * 2) do
 			local cf = take(floors)
 			if cf then
-				local blood = rnd:NextNumber() < 0.4
-				decal(F.Props, cf * CFrame.new(0, 0.03, 0), Vector3.new(rnd:NextNumber(1.5, 4), 0.02, rnd:NextNumber(1, 3)), blood and Color3.fromRGB(58, 4, 6) or Color3.fromRGB(16, 14, 12), blood and 0.05 or 0.35)
+				local blood = rnd:NextNumber() < 0.2
+				if blood then B.BloodSplat(F.Props, CFrame.new(cf.Position), rnd:NextNumber(0.45, 0.9))
+				else decal(F.Props, cf * CFrame.new(0, 0.03, 0), Vector3.new(rnd:NextNumber(1.5, 4), 0.02, rnd:NextNumber(1, 3)), Color3.fromRGB(16, 14, 12), 0.35) end
+			end
+		end
+		-- respingo numa parede (com escorrido) e, às vezes, rastro arrastado até um armário
+		if r ~= startRoom and rnd:NextNumber() < 0.35 and #spots > 0 then
+			local sp = take(spots)
+			local wallPos = sp.Position - sp.LookVector * 1.86 + Vector3.new(0, rnd:NextNumber(4.5, 7.5), 0)
+			local n = sp.LookVector
+			B.BloodSplat(F.Props, CFrame.fromMatrix(wallPos, n:Cross(Vector3.yAxis).Unit, n), rnd:NextNumber(0.5, 0.85), { wall = true })
+		end
+		if r ~= startRoom and rnd:NextNumber() < 0.12 and #floors > 1 then
+			local lk = F.Lockers:GetChildren()
+			local target = lk[#lk]
+			local a = take(floors).Position
+			if target then
+				local b = target:GetPivot().Position
+				b = Vector3.new(b.X, 0, b.Z)
+				if (b - a).Magnitude < 30 then B.BloodTrail(F.Props, a, b) end
 			end
 		end
 		-- poeira no ar
@@ -1246,6 +1264,99 @@ function B.BuildLobbyHorror(lobby: Model, spawnPart: BasePart)
 	pe.Color = ColorSequence.new(Color3.fromRGB(70, 50, 60)); pe.LightInfluence = 0.7; pe.Rotation = NumberRange.new(0, 360); pe.RotSpeed = NumberRange.new(-8, 8); pe.Parent = fogP
 	-- corvos parados nos telhados (pontinhos pretos)
 	return boards, moon
+end
+
+
+-- =====================================================================
+-- SANGUE REALISTA (quantidade leve: respingos, gotas, escorridos)
+-- Elipses achatadas com brilho molhado, centro mais escuro, gotas satélites
+-- alongadas na direção do respingo e escorridos nas paredes.
+-- =====================================================================
+local BLOOD_DARK = Color3.fromRGB(52, 3, 5)
+local BLOOD_MID = Color3.fromRGB(92, 6, 9)
+local BLOOD_WET = Color3.fromRGB(128, 10, 14)
+
+local function bloodBlob(parent, cf: CFrame, sx: number, sz: number, color: Color3, wet: number?)
+	local p = Instance.new("Part")
+	p.Name = "Blood"; p.Anchored = true; p.CanCollide = false; p.CanQuery = false; p.CanTouch = false; p.CastShadow = false
+	p.Size = Vector3.new(math.max(0.05, sx), 0.05, math.max(0.05, sz))
+	p.CFrame = cf
+	p.Color = color; p.Material = Enum.Material.SmoothPlastic; p.Reflectance = wet or 0.08
+	local m = Instance.new("SpecialMesh"); m.MeshType = Enum.MeshType.Sphere; m.Scale = Vector3.new(1, 0.3, 1); m.Parent = p
+	p.Parent = parent
+	return p
+end
+B.BloodBlob = bloodBlob
+
+-- surface: CFrame cujo UpVector é a normal da superfície (chão = CFrame.new(pos))
+function B.BloodSplat(parent, surface: CFrame, scale: number?, opts)
+	opts = opts or {}
+	scale = scale or 1
+	local rnd = Random.new()
+	local f = Instance.new("Model"); f.Name = "BloodSplat"
+	local lift = CFrame.new(0, 0.03, 0)
+	local base = surface * lift * CFrame.Angles(0, opts.dir and 0 or rnd:NextNumber(0, math.pi * 2), 0)
+	-- poça central: 3 camadas, a de baixo maior e mais escura (sangue secando nas bordas)
+	bloodBlob(f, base, 2.2 * scale, 1.7 * scale, BLOOD_DARK, 0.02)
+	bloodBlob(f, base * CFrame.new(rnd:NextNumber(-0.25, 0.25) * scale, 0.006, rnd:NextNumber(-0.2, 0.2) * scale) * CFrame.Angles(0, rnd:NextNumber(0, 3), 0), 1.5 * scale, 1.1 * scale, BLOOD_MID, 0.12)
+	bloodBlob(f, base * CFrame.new(rnd:NextNumber(-0.2, 0.2) * scale, 0.012, rnd:NextNumber(-0.2, 0.2) * scale), 0.8 * scale, 0.6 * scale, BLOOD_WET, 0.22)
+	-- direção principal do respingo
+	local dir = opts.dir or rnd:NextNumber(0, math.pi * 2)
+	-- gotas satélites alongadas para fora
+	for _ = 1, math.floor(8 * scale + 4) do
+		local a = dir + rnd:NextNumber(-1.1, 1.1)
+		local r = rnd:NextNumber(1.1, 2.8) * scale
+		local len = rnd:NextNumber(0.12, 0.45) * scale * (r / scale) * 0.6
+		local wid = rnd:NextNumber(0.06, 0.16) * scale
+		local c = base * CFrame.Angles(0, -a, 0) * CFrame.new(r, 0.004, 0)
+		bloodBlob(f, c, len + wid, wid, rnd:NextNumber() < 0.5 and BLOOD_MID or BLOOD_DARK, 0.15)
+	end
+	-- gotículas soltas
+	for _ = 1, math.floor(6 * scale + 3) do
+		local a = rnd:NextNumber(0, math.pi * 2)
+		local r = rnd:NextNumber(1.5, 3.6) * scale
+		local d = rnd:NextNumber(0.04, 0.1) * scale + 0.03
+		bloodBlob(f, base * CFrame.Angles(0, a, 0) * CFrame.new(r, 0.004, 0), d, d, BLOOD_MID, 0.18)
+	end
+	-- escorridos (paredes): finos, descendo pela gravidade, com gota na ponta
+	if opts.wall then
+		local down = -Vector3.yAxis
+		local normal = surface.UpVector
+		for _ = 1, math.floor(3 * scale + 2) do
+			local start = (base * CFrame.new(rnd:NextNumber(-0.9, 0.9) * scale, 0.02, rnd:NextNumber(-0.6, 0.6) * scale)).Position
+			local len = rnd:NextNumber(0.8, 3.2) * scale
+			local w = rnd:NextNumber(0.05, 0.12) * scale + 0.03
+			local mid = start + down * (len / 2)
+			local p = Instance.new("Part"); p.Name = "BloodDrip"; p.Anchored = true; p.CanCollide = false; p.CanQuery = false; p.CanTouch = false; p.CastShadow = false
+			p.Size = Vector3.new(w, len, 0.04); p.CFrame = CFrame.lookAt(mid, mid + normal) * CFrame.new(0, 0, -0.01)
+			p.Color = BLOOD_MID; p.Material = Enum.Material.SmoothPlastic; p.Reflectance = 0.15; p.Parent = f
+			local tipPos = start + down * len
+			local side = normal:Cross(Vector3.yAxis)
+			if side.Magnitude < 0.1 then side = Vector3.xAxis end
+			bloodBlob(f, CFrame.fromMatrix(tipPos, side.Unit, normal), w * 1.8, w * 2.2, BLOOD_WET, 0.25)
+		end
+	end
+	f.Parent = parent
+	return f
+end
+
+-- rastro de arrasto entre dois pontos do chão (manchas alongadas que vão clareando)
+function B.BloodTrail(parent, a: Vector3, b: Vector3)
+	local rnd = Random.new()
+	local f = Instance.new("Model"); f.Name = "BloodTrail"
+	local d = b - a
+	local n = math.max(3, math.floor(d.Magnitude / 1.6))
+	local look = CFrame.lookAt(a, b)
+	for i = 0, n do
+		local t = i / n
+		local p = a + d * t + look.RightVector * math.sin(t * 9) * 0.25
+		local cf = CFrame.new(p + Vector3.new(0, 0.03, 0)) * CFrame.Angles(0, math.atan2(-d.X, -d.Z), 0) * CFrame.Angles(0, math.rad(90), 0)
+		local col = BLOOD_DARK:Lerp(Color3.fromRGB(40, 18, 16), t * 0.6)
+		bloodBlob(f, cf, rnd:NextNumber(1.6, 2.4), rnd:NextNumber(0.5, 0.9) * (1 - t * 0.5), col, 0.05)
+	end
+	B.BloodSplat(f, CFrame.new(a), 0.7)
+	f.Parent = parent
+	return f
 end
 
 return B

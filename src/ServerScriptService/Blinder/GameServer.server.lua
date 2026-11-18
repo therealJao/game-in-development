@@ -77,6 +77,61 @@ local function humOf(plr: Player): Humanoid?
 	return c and c:FindFirstChildOfClass("Humanoid")
 end
 
+-- ================== Sangue (leve e realista) ==================
+local bloodParams = RaycastParams.new()
+bloodParams.FilterType = Enum.RaycastFilterType.Include
+local function bloodFolder(): Instance?
+	local map = Round and Round.map
+	if not map then return nil end
+	local f = map:FindFirstChild("BloodFx")
+	if not f then f = Instance.new("Folder"); f.Name = "BloodFx"; f.Parent = map end
+	return f
+end
+local function floorBelow(pos: Vector3): Vector3?
+	local map = Round and Round.map
+	if not map then return nil end
+	bloodParams.FilterDescendantsInstances = { map:FindFirstChild("Structure") or map }
+	local hit = workspace:Raycast(pos + Vector3.new(0, 1, 0), Vector3.new(0, -12, 0), bloodParams)
+	return hit and hit.Normal.Y > 0.7 and hit.Position or nil
+end
+local function bloodSplatAt(pos: Vector3, scale: number, dir: number?)
+	local f = bloodFolder(); if not f then return end
+	if #f:GetChildren() > 140 then return end
+	local fl = floorBelow(pos)
+	if fl then pcall(Builders.BloodSplat, f, CFrame.new(fl), scale, { dir = dir }) end
+end
+local function bloodWallNear(pos: Vector3, scale: number)
+	local f = bloodFolder(); local map = Round and Round.map
+	if not f or not map then return end
+	bloodParams.FilterDescendantsInstances = { map:FindFirstChild("Structure") or map }
+	local best
+	for k = 0, 7 do
+		local a = k / 8 * math.pi * 2
+		local hit = workspace:Raycast(pos, Vector3.new(math.cos(a), 0, math.sin(a)) * 6, bloodParams)
+		if hit and math.abs(hit.Normal.Y) < 0.3 and (not best or hit.Distance < best.Distance) then best = hit end
+	end
+	if best then
+		local n = best.Normal
+		pcall(Builders.BloodSplat, f, CFrame.fromMatrix(best.Position + n * 0.04, n:Cross(Vector3.yAxis).Unit, n), scale, { wall = true })
+	end
+end
+-- sangue pingando da boca do monstro
+local function addDrool(model: Model)
+	local head = model:FindFirstChild("Head", true)
+	if not head or not head:IsA("BasePart") or head:FindFirstChild("Drool") then return end
+	local at = Instance.new("Attachment"); at.Name = "Drool"
+	at.Position = Vector3.new(0, -head.Size.Y * 0.38, -head.Size.Z * 0.42)
+	at.Parent = head
+	local pe = Instance.new("ParticleEmitter")
+	pe.Texture = "rbxasset://textures/particles/smoke_main.dds"
+	pe.Color = ColorSequence.new(Color3.fromRGB(110, 6, 10), Color3.fromRGB(60, 2, 4))
+	pe.Size = NumberSequence.new({ NumberSequenceKeypoint.new(0, 0.1), NumberSequenceKeypoint.new(0.3, 0.14), NumberSequenceKeypoint.new(1, 0.06) })
+	pe.Transparency = NumberSequence.new(0.05, 0.3)
+	pe.Lifetime = NumberRange.new(0.6, 1.0); pe.Rate = 5; pe.Speed = NumberRange.new(0.2, 0.6)
+	pe.SpreadAngle = Vector2.new(10, 10); pe.Acceleration = Vector3.new(0, -45, 0); pe.EmissionDirection = Enum.NormalId.Bottom
+	pe.LightInfluence = 1; pe.LightEmission = 0; pe.Parent = at
+end
+
 local function survivors(): { Player }
 	local t = {}
 	for plr, st in pairs(PState) do
@@ -328,7 +383,16 @@ kill = function(plr: Player, killer: Instance?)
 			TweenService:Create(vr, TweenInfo.new(0.35, Enum.EasingStyle.Back, Enum.EasingDirection.Out), { CFrame = grab }):Play()
 		end
 	end
-	task.delay(1.1, function() if h.Parent then h.Health = 0 end end)
+	task.delay(1.1, function()
+		local vr = rootOf(plr)
+		if vr then
+			local kr = killer and killer:FindFirstChild("HumanoidRootPart") :: BasePart?
+			local dir = kr and math.atan2((vr.Position - kr.Position).Z, (vr.Position - kr.Position).X) or nil
+			bloodSplatAt(vr.Position, 1.0, dir)
+			bloodWallNear(vr.Position + Vector3.new(0, 1.5, 0), 0.75)
+		end
+		if h.Parent then h.Health = 0 end
+	end)
 	if Round.monsterPlayer and killer == Round.monsterPlayer.Character then
 		Data.AddMoney(Round.monsterPlayer, Config.MONSTER_KILL_REWARD)
 		Data.Inc(Round.monsterPlayer, "Kills")
@@ -563,6 +627,7 @@ local function morphPlayerMonster(plr: Player, spawnCF: CFrame?)
 		rig:SetAttribute("Nightmare", Data.HasSkill(plr, "M_Nightmare"))
 		rig.Humanoid.WalkSpeed = def.stats.walk
 		plr.Character = rig
+		pcall(addDrool, rig)
 		rig.Parent = workspace
 		pcall(function() rig.PrimaryPart:SetNetworkOwner(plr) end)
 		if old and old ~= rig then old:Destroy() end
@@ -901,6 +966,21 @@ task.spawn(function()
 	end
 end)
 
+-- ================== Gotas de sangue de quem está com as mãos destruídas ==================
+task.spawn(function()
+	while true do
+		task.wait(1.1)
+		if Round.phase == "Round" then
+			for _, plr in ipairs(survivors()) do
+				if (plr:GetAttribute("Hands") or 100) <= 0 and not plr:GetAttribute("Hiding") then
+					local r = rootOf(plr)
+					if r then bloodSplatAt(r.Position + r.CFrame.RightVector * 1.1, 0.16) end
+				end
+			end
+		end
+	end
+end)
+
 -- ================== Sensores de ruído (passos) ==================
 task.spawn(function()
 	while true do
@@ -1023,6 +1103,7 @@ local function startRound(): boolean
 			notify(mp, "VOCÊ É O BLINDER. Você é cego: siga os sons. [Clique] atacar  [E] abrir armário", "monster")
 		else
 			local model = Factory.CreateAI(nil, "Original")
+			pcall(addDrool, model)
 			model:PivotTo(mSpawn.CFrame)
 			model.Parent = workspace
 			CS:AddTag(model, "Monster")

@@ -324,7 +324,8 @@ end)
 
 Remotes.HitFx.OnClientEvent:Connect(function(kind, pos, snd, broke)
 	if kind == "Bleed" then
-		hud.flash(Color3.fromRGB(160, 0, 0), 0.45, 0.6)
+		hud.flash(Color3.fromRGB(120, 0, 0), 0.6, 0.5)
+		hud.bloodScreen(1)
 		shake = math.max(shake, 0.8)
 		hud.notify("Suas mãos estão sangrando! Use ataduras [F]", "death")
 	elseif kind == "Remote" and pos then
@@ -1338,11 +1339,13 @@ RunService:BindToRenderStep("BlinderCamera", Enum.RenderPriority.Camera.Value + 
 	else
 		hud.setClock("FIM DA NOITE", "--:--", nil)
 	end
+	if not survivor then hud.setWounded(false, now) end
 	if survivor then
 		hud.setRoundMoney(player:GetAttribute("RoundMoney") or 0)
 		hud.setStamina(stamina / maxStamina(), exhausted)
 		local hands = player:GetAttribute("Hands") or Config.HAND_MAX
 		hud.setHands(hands / Config.HAND_MAX)
+		hud.setWounded(hands <= 0, now)
 		hud.setBandages(player:GetAttribute("Bandages") or 0)
 		hud.setFlashlight(hasLamp, battery, flashOn)
 	elseif monster then
