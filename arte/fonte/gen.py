@@ -145,11 +145,17 @@ P(f'<path d="M 0 0 L {W} 0 L {W} {CY-60} Q {CX} {TOPC+60} 0 {CY-60} Z" fill="#0a
 # reflexos
 P(f'<ellipse cx="{CX-62}" cy="{CY-70}" rx="34" ry="22" transform="rotate(-30 {CX-62} {CY-70})" fill="#ffffff" opacity="0.92"/>')
 P(f'<ellipse cx="{CX+70}" cy="{CY+66}" rx="11" ry="7" fill="#ffffff" opacity="0.55"/>')
+# reflexo: uma janela curva e a silhueta do Blinder refletida na íris
+P(f'<path d="M {CX-118} {CY+20} Q {CX-112} {CY-48} {CX-70} {CY-96}" fill="none" stroke="#ffffff" stroke-opacity="0.22" stroke-width="6" stroke-linecap="round"/>')
+fx, fy = CX + 78, CY + 22
+P(f'<g opacity="0.42" transform="rotate(-6 {fx} {fy})"><ellipse cx="{fx}" cy="{fy-30}" rx="5.5" ry="7" fill="#fff6e8"/>'
+  f'<path d="M {fx-4} {fy-22} L {fx+4} {fy-22} L {fx+10} {fy-14} L {fx+11} {fy+14} L {fx+8} {fy+15} L {fx+6} {fy-6} L {fx+4} {fy+30} L {fx+1} {fy+30} L {fx} {fy+8} L {fx-1} {fy+30} L {fx-4} {fy+30} L {fx-6} {fy-6} L {fx-8} {fy+15} L {fx-11} {fy+14} L {fx-10} {fy-14} Z" fill="#fff6e8"/></g>')
 P(f'<path d="M {L+60} {CY-40} Q {CX} {TOPC+90} {R-60} {CY-40}" fill="none" stroke="#ffffff" stroke-opacity="0.12" stroke-width="10" filter="url(#soft)"/>')
 P('</g>')
 
 # borda molhada da pálpebra
 P(f'<path d="{almond}" fill="none" stroke="#5a0a10" stroke-width="7"/>')
+P(f'<path d="M {L+20} {CY-8} Q {CX} {TOPC-6} {R-20} {CY-8}" fill="none" stroke="#ff3a2a" stroke-opacity="0.35" stroke-width="5" filter="url(#soft)"/>')
 P(f'<path d="M {L} {CY} Q {CX} {BOTC} {R} {CY}" fill="none" stroke="#c03040" stroke-opacity="0.45" stroke-width="3"/>')
 
 # cílios irregulares na pálpebra de cima
@@ -210,7 +216,7 @@ drip(0.6, 90, 8)
 drip(0.71, 180 if not short else 120, 10)
 
 if with_text:
-    for i in range(0 if (SAFE or CHARM) else 9):
+    for i in range(0):
         x=CX-330+i*82+random.uniform(-20,20); w=random.uniform(4,8)
         ln=random.uniform(18,50)
         P(f'<path d="M {x-w:.1f} 952 C {x-w:.1f} {952+ln*0.6:.1f} {x-w*1.3:.1f} {952+ln:.1f} {x:.1f} {952+ln+w:.1f} C {x+w*1.3:.1f} {952+ln:.1f} {x+w:.1f} {952+ln*0.6:.1f} {x+w:.1f} 952 Z" fill="#8a0010"/>')
