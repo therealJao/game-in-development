@@ -1,10 +1,13 @@
-import math, random, base64
+import math, random, base64, os
+SAFE = os.environ.get('SAFE') == '1'
+CHARM = os.environ.get('CHARM') == '1'
 random.seed(13)
 W,H=1920,1080
 VX,VY=1400,520     # ponto de fuga
 K=560
 creep=base64.b64encode(open('creepster.woff2','rb').read()).decode()
 elite=base64.b64encode(open('elite.woff2','rb').read()).decode()
+bebas=base64.b64encode(open('bebas.woff2','rb').read()).decode()
 o=[]
 def P(x): o.append(x)
 def pr(x,y,z): return (VX+x*K/z, VY-y*K/z)
@@ -21,7 +24,7 @@ def light(z, x=0, y=0):
 
 P(f'''<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="{W}" height="{H}" viewBox="0 0 {W} {H}">
 <defs>
-<style>@font-face{{font-family:Creep;src:url(data:font/woff2;base64,{creep});}} @font-face{{font-family:Elite;src:url(data:font/woff2;base64,{elite});}}</style>
+<style>@font-face{{font-family:Creep;src:url(data:font/woff2;base64,{creep});}} @font-face{{font-family:Elite;src:url(data:font/woff2;base64,{elite});}} @font-face{{font-family:Bebas;src:url(data:font/woff2;base64,{bebas});}}</style>
 <linearGradient id="bg" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#0a0103"/><stop offset="0.5" stop-color="#16040a"/><stop offset="1" stop-color="#0c0204"/></linearGradient>
 <radialGradient id="cone" cx="50%" cy="0%" r="100%"><stop offset="0" stop-color="#ffd59a" stop-opacity="0.45"/><stop offset="0.6" stop-color="#ffb070" stop-opacity="0.08"/><stop offset="1" stop-color="#ffb070" stop-opacity="0"/></radialGradient>
 <radialGradient id="redfog" cx="50%" cy="50%" r="50%"><stop offset="0" stop-color="#d0101a" stop-opacity="0.55"/><stop offset="1" stop-color="#600008" stop-opacity="0"/></radialGradient>
@@ -86,7 +89,7 @@ for side in (-1,1):
         hp=pr(side,-0.1,z+w-0.05)
         P(f'<rect x="{hp[0]-2:.1f}" y="{hp[1]-14/z:.1f}" width="{max(2,5/z):.1f}" height="{28/z:.1f}" fill="#9a9a9a" opacity="{l:.2f}"/>')
         # um armário entreaberto com mão saindo
-        if n==2 and side==1:
+        if n==2 and side==1 and not SAFE:
             dd=pr(side-0.12,0.75,z+0.02); de=pr(side-0.12,-1,z+0.02)
             poly([a,dd,de,d],'#050203')
             for f in range(4):
@@ -94,12 +97,12 @@ for side in (-1,1):
                 P(f'<path d="M {fx:.1f} {fy:.1f} q {-26/z:.1f} {4/z:.1f} {-40/z:.1f} {16/z:.1f}" stroke="#c9a68c" stroke-width="{9/z:.1f}" stroke-linecap="round" fill="none"/>')
         z+=w+0.02; n+=1
     # sangue escorrendo na parede
-    for _ in range(3):
+    for _ in range(0 if (SAFE or CHARM) else 3):
         zz=random.uniform(1.2,3.4); yy=random.uniform(0.2,0.9)
         p0=pr(side,yy,zz); p1=pr(side,yy-random.uniform(0.3,0.8),zz)
         P(f'<line x1="{p0[0]:.1f}" y1="{p0[1]:.1f}" x2="{p1[0]:.1f}" y2="{p1[1]:.1f}" stroke="#7a0008" stroke-width="{10/zz:.1f}" stroke-linecap="round" opacity="0.85"/>')
 # poças e manchas de sangue arrastadas no chão
-for i in range(16):
+for i in range(0 if (SAFE or CHARM) else 16):
     z=ZN+0.25+i*0.17; x=math.sin(i*0.9)*0.12+0.12
     cxp,cyp=pr(x,-1,z); rx=random.uniform(28,60)/z; ry=rx*0.28
     P(f'<ellipse cx="{cxp:.1f}" cy="{cyp:.1f}" rx="{rx:.1f}" ry="{ry:.1f}" fill="#5a0006" opacity="{0.85-i*0.03:.2f}" filter="url(#blur4)"/>')
@@ -141,7 +144,7 @@ P('</g>')
 b0=rot(S(-0.04,0.955),0.35); b1=rot(S(0.04,0.955),0.35)
 P(f'<line x1="{b0[0]:.1f}" y1="{b0[1]:.1f}" x2="{b1[0]:.1f}" y2="{b1[1]:.1f}" stroke="#d8d0c0" stroke-width="{h*0.018:.1f}" opacity="0.8"/>')
 m0=rot(S(-0.022,0.918),0.35); m1=rot(S(0.022,0.918),0.35)
-P(f'<path d="M {m0[0]:.1f} {m0[1]:.1f} Q {(m0[0]+m1[0])/2:.1f} {(m0[1]+m1[1])/2+h*0.012:.1f} {m1[0]:.1f} {m1[1]:.1f}" stroke="#ff2a1a" stroke-width="{h*0.006:.1f}" fill="none"/>')
+if not (SAFE or CHARM): P(f'<path d="M {m0[0]:.1f} {m0[1]:.1f} Q {(m0[0]+m1[0])/2:.1f} {(m0[1]+m1[1])/2+h*0.012:.1f} {m1[0]:.1f} {m1[1]:.1f}" stroke="#ff2a1a" stroke-width="{h*0.006:.1f}" fill="none"/>')
 P(f'<ellipse cx="{fb[0]}" cy="{fb[1]+4}" rx="{h*0.25:.1f}" ry="{h*0.03:.1f}" fill="#000" opacity="0.7" filter="url(#blur4)"/>')
 
 # névoa e escuridão
@@ -150,14 +153,14 @@ P(f'<rect width="{W}" height="{H}" fill="url(#leftDark)"/>')
 
 # olho gigante observando (canto esquerdo)
 P(f'<circle cx="560" cy="330" r="380" fill="#b00010" opacity="0.28" filter="url(#blur40)"/>')
-P('<image href="eye.svg" x="40" y="-200" width="1040" height="1040" opacity="0.96"/>')
+P(f'<image href="{"eye_safe.svg" if SAFE else ("eye_charm.svg" if CHARM else "eye.svg")}" x="40" y="-200" width="1040" height="1040" opacity="0.96"/>')
 
 # título
-for i in range(8):
+for i in range(0 if (SAFE or CHARM) else 8):
     x=560-320+i*90+random.uniform(-20,20); w=random.uniform(4,9); ln=random.uniform(20,60)
     if i == 5: continue
     P(f'<path d="M {x-w:.1f} 872 C {x-w:.1f} {872+ln*0.6:.1f} {x-w*1.3:.1f} {872+ln:.1f} {x:.1f} {872+ln+w:.1f} C {x+w*1.3:.1f} {872+ln:.1f} {x+w:.1f} {872+ln*0.6:.1f} {x+w:.1f} 872 Z" fill="#8a0010"/>')
-P(f'<g filter="url(#textGlow)"><text x="560" y="880" text-anchor="middle" font-family="Creep" font-size="250" letter-spacing="8" fill="url(#txt)" stroke="#120002" stroke-width="8" paint-order="stroke">BLINDER</text></g>')
+P(f'<g filter="url(#textGlow)"><text x="560" y="880" text-anchor="middle" font-family="{'Bebas' if SAFE else 'Creep'}" font-size="{300 if SAFE else 250}" letter-spacing="{30 if SAFE else 8}" fill="url(#txt)" stroke="#120002" stroke-width="8" paint-order="stroke">BLINDER</text></g>')
 P('<text x="560" y="1000" text-anchor="middle" font-family="Elite" font-size="44" letter-spacing="10" fill="#e8dccb">ELE NÃO VÊ.  ELE <tspan fill="#ff3020">ESCUTA.</tspan></text>')
 
 P(f'<rect width="{W}" height="{H}" fill="url(#vig)"/>')
